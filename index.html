@@ -5,34 +5,34 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Açovisa Motion Reel</title>
 <style>
-@font-face{font-family:'BC';font-weight:600;src:url(assets/bc600.ttf)}
-@font-face{font-family:'BC';font-weight:800;src:url(assets/bc800.ttf)}
-@font-face{font-family:'BR';font-weight:500;src:url(assets/b500.ttf)}
-@font-face{font-family:'BR';font-weight:700;src:url(assets/b700.ttf)}
+@font-face{font-family:'SFT Schrifted Sans Comp';font-weight:600;src:url(assets/sft-demi-comp.ttf)}
+@font-face{font-family:'SFT Schrifted Sans Comp';font-weight:800;src:url(assets/sft-black-comp.ttf)}
+@font-face{font-family:'SFT Schrifted Sans';font-weight:500;src:url(assets/sft-medium.ttf)}
+@font-face{font-family:'SFT Schrifted Sans';font-weight:700;src:url(assets/sft-bold.ttf)}
 :root{--navy:#003A70;--blue:#0071BB;--ink:#1A2B4A;--ice:#EEF4FA;--line:#D6E2EE;--slate:#64748B;--yellow:#FFCD00;--white:#fff;--deep:#0B1A30}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;background:#05101f;overflow:hidden;font-family:'BR',sans-serif}
+html,body{width:100%;height:100%;background:#05101f;overflow:hidden;font-family:'SFT Schrifted Sans',sans-serif}
 #viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
 #stage{position:relative;width:1920px;height:1080px;flex:none;transform-origin:center center;background:var(--deep);overflow:hidden;color:#fff}
 .scene{position:absolute;inset:0;overflow:hidden;display:none}
 .abs{position:absolute}
-.disp{font-family:'BC';font-weight:800;text-transform:uppercase;line-height:.86;letter-spacing:-.005em;white-space:nowrap}
-.cond{font-family:'BC';font-weight:600;text-transform:uppercase;letter-spacing:.14em}
-.mask{display:block;overflow:hidden;padding:.06em 0 .02em}
+.disp{font-family:'SFT Schrifted Sans Comp';font-weight:800;text-transform:uppercase;line-height:.88;letter-spacing:-.012em;white-space:nowrap}
+.cond{font-family:'SFT Schrifted Sans Comp';font-weight:600;text-transform:uppercase;letter-spacing:.14em}
+.mask{display:block;overflow:hidden;padding:.16em 0 .16em;margin:-.14em 0}
 .mask>i{display:block;font-style:normal;will-change:transform}
-.chip{position:absolute;font-family:'BC';font-weight:600;font-size:30px;letter-spacing:.22em;text-transform:uppercase;padding:12px 26px 10px;border-left:6px solid var(--yellow);background:rgba(255,255,255,.08)}
-.body{font-family:'BR';font-weight:500;font-size:34px;line-height:1.3}
+.chip{position:absolute;font-family:'SFT Schrifted Sans Comp';font-weight:600;font-size:30px;letter-spacing:.22em;text-transform:uppercase;padding:12px 26px 10px;border-left:6px solid var(--yellow);background:rgba(255,255,255,.08)}
+.body{font-family:'SFT Schrifted Sans';font-weight:500;font-size:34px;line-height:1.3}
 .y{color:var(--yellow)} .b{color:var(--blue)} .n{color:var(--navy)}
 .card{position:absolute;background:#fff;border-radius:28px;box-shadow:0 30px 80px rgba(0,30,70,.28)}
 .grain{position:absolute;inset:-50%;opacity:.07;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
 #wipe{position:absolute;inset:0;pointer-events:none;z-index:50}
 #wipe div{position:absolute;top:-10%;left:0;width:150%;height:120%;}
 #prog{position:absolute;left:0;bottom:0;height:8px;width:100%;background:var(--yellow);transform-origin:left;transform:scaleX(0);z-index:60}
-#ui{position:fixed;left:0;right:0;bottom:0;display:flex;gap:14px;align-items:center;padding:12px 20px;background:linear-gradient(transparent,rgba(0,0,0,.7));color:#fff;font:600 14px 'BR',sans-serif;z-index:99;transition:opacity .3s}
-#ui button{background:var(--yellow);border:0;border-radius:8px;padding:8px 16px;font:700 14px 'BR';color:#1A2B4A;cursor:pointer}
+#ui{position:fixed;left:0;right:0;bottom:0;display:flex;gap:14px;align-items:center;padding:12px 20px;background:linear-gradient(transparent,rgba(0,0,0,.7));color:#fff;font:600 14px 'SFT Schrifted Sans',sans-serif;z-index:99;transition:opacity .3s}
+#ui button{background:var(--yellow);border:0;border-radius:8px;padding:8px 16px;font:700 14px 'SFT Schrifted Sans';color:#1A2B4A;cursor:pointer}
 #ui input{flex:1;accent-color:#FFCD00}
 body.render #ui{display:none}
-.tile-num{font-family:'BC';font-weight:800;line-height:.85}
+.tile-num{font-family:'SFT Schrifted Sans Comp';font-weight:800;line-height:.85}
 svg{overflow:visible}
 </style>
 </head>
@@ -46,14 +46,14 @@ svg{overflow:visible}
     <path id="s1y" d="M-120 800 C 500 520, 1250 520, 2040 860" fill="none" stroke="#FFCD00" stroke-width="14" stroke-linecap="round" pathLength="1"/>
     <path id="s1b" d="M-120 900 C 600 280, 1350 260, 2040 700" fill="none" stroke="#0071BB" stroke-width="10" stroke-linecap="round" pathLength="1"/>
   </svg>
-  <div id="s1sparks" class="abs" style="left:760px;top:520px"></div>
-  <div class="abs" id="s1txt" style="left:150px;top:210px;font-size:270px">
+  
+  <div class="abs" id="s1txt" style="left:150px;top:230px;font-size:225px">
     <span class="mask disp"><i>O Aço</i></span>
     <span class="mask disp y"><i>Certo</i></span>
     <span class="mask disp"><i>É Açovisa</i></span>
   </div>
   <div class="abs" id="s1logo" style="left:0;top:0;width:1920px;height:1080px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;visibility:hidden">
-    <div style="position:relative;overflow:hidden;clip-path:inset(22% 0 22% 0);margin:-70px 0"><img id="s1logoimg" src="assets/image3.png" width="1000"><div id="s1flare" style="position:absolute;top:0;left:0;width:200px;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);transform:translateX(-300px) skewX(-20deg)"></div></div>
+    <div style="position:relative;overflow:hidden;"><img id="s1logoimg" src="assets/image3.png" width="1000"><div id="s1flare" style="position:absolute;top:0;left:0;width:200px;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);transform:translateX(-300px) skewX(-20deg)"></div></div>
     <div class="cond" id="s1sub1" style="font-size:44px;color:var(--yellow)">Apresentação institucional</div>
     <div class="cond" id="s1sub2" style="font-size:30px;color:#cfe0f2;letter-spacing:.2em">Desde 1995 · 17 unidades · Atuação em todo o Brasil</div>
   </div>
@@ -62,9 +62,9 @@ svg{overflow:visible}
 
 <!-- ============ S2 30 ANOS ============ -->
 <section class="scene" id="s2" style="background:var(--ice);color:var(--ink)">
-  <div class="abs" id="s2bg" style="right:-200px;top:-100px;width:900px;height:1400px;background:var(--navy);transform:skewX(-14deg)"></div>
+  <div class="abs" id="s2bg" style="right:-200px;top:-100px;width:1050px;height:880px;background:var(--navy);transform:skewX(-14deg)"></div>
   <div class="chip" id="s2chip" style="left:140px;top:110px;color:var(--navy);background:rgba(0,58,112,.07)">Quem somos</div>
-  <div class="disp n" id="s2year" style="left:120px;top:200px;font-size:560px;position:absolute;-webkit-text-stroke:0">1995</div>
+  <div class="disp n" id="s2year" style="left:120px;top:250px;font-size:400px;position:absolute;-webkit-text-stroke:0">1995</div>
   <div class="abs" id="s2tl" style="left:140px;top:840px;width:1640px;height:120px">
     <div id="s2ticks" style="position:absolute;left:0;top:0;width:100%;height:60px"></div>
     <div id="s2line" style="position:absolute;left:0;top:60px;height:8px;width:100%;background:var(--blue);transform-origin:left;transform:scaleX(0)"></div>
@@ -73,10 +73,10 @@ svg{overflow:visible}
     <div class="cond" style="position:absolute;right:0;top:90px;font-size:30px;color:var(--slate)">2026 · Hoje</div>
   </div>
   <div class="abs" id="s2big" style="right:110px;top:150px;width:640px;text-align:left;visibility:hidden">
-    <div class="disp y" id="s2n" style="font-size:430px">30+</div>
-    <div class="disp" style="font-size:130px;margin-top:-6px;color:#fff"><span class="mask"><i id="s2anos">Anos de<br>mercado</i></span></div>
+    <div class="disp y" id="s2n" style="font-size:330px">30+</div>
+    <div class="disp" style="font-size:96px;margin-top:-6px;color:#fff"><span class="mask"><i id="s2anos">Anos de<br>mercado</i></span></div>
   </div>
-  <div class="abs" style="left:140px;top:770px;font-size:48px;width:1000px;color:var(--ink)" id="s2txt"><span class="mask"><i class="body" style="font-size:44px;font-weight:700">Uma empresa <span class="b">100% brasileira</span> de aços especiais.</i></span></div>
+  <div class="abs" style="left:140px;top:770px;font-size:48px;width:1000px;color:var(--ink)" id="s2txt"><span class="mask"><i class="body" style="font-size:38px;white-space:nowrap;font-weight:700">Uma empresa <span class="b">100% brasileira</span> de aços especiais.</i></span></div>
 </section>
 
 <!-- ============ S3A 50.000 t ============ -->
@@ -84,7 +84,7 @@ svg{overflow:visible}
   <div class="abs" id="s3abars" style="inset:0"></div>
   <div class="chip" style="left:140px;top:100px">01 · Escala e crescimento</div>
   <div class="abs" style="left:0;width:1920px;top:210px;text-align:center">
-    <div class="disp" id="s3an" style="font-size:600px;display:inline-block">0<span class="y" style="font-size:300px;margin-left:16px">t</span></div>
+    <div class="disp" id="s3an" style="font-size:470px;display:inline-block">0<span class="y" style="font-size:240px;margin-left:16px">t</span></div>
   </div>
   <div class="abs cond" id="s3al" style="left:0;width:1920px;top:760px;text-align:center;font-size:56px;color:#dbe8f6"><span class="mask"><i>Toneladas de aço movimentadas por ano</i></span></div>
   <div class="abs" id="s3am" style="left:360px;top:880px;width:1200px">
@@ -96,7 +96,7 @@ svg{overflow:visible}
 <!-- ============ S3B tiles ============ -->
 <section class="scene" id="s3b" style="background:var(--ice);color:var(--ink)">
   <div class="chip" style="left:140px;top:90px;color:var(--navy);background:rgba(0,58,112,.07)">Nossa estrutura</div>
-  <div class="abs" id="s3bt" style="left:140px;top:150px"><div class="disp n" style="font-size:150px"><span class="mask"><i>Rede que sustenta a entrega</i></span></div></div>
+  <div class="abs" id="s3bt" style="left:140px;top:150px"><div class="disp n" style="font-size:112px"><span class="mask"><i>Rede que sustenta a entrega</i></span></div></div>
   <div class="abs" id="s3btiles"></div>
 </section>
 
@@ -107,10 +107,10 @@ svg{overflow:visible}
   <div id="s3cbarsL" class="abs" style="left:0;bottom:0;width:960px;height:1080px;display:flex;align-items:flex-end;gap:8px;padding:0 40px;opacity:.16"></div>
   <div id="s3cbarsR" class="abs" style="left:960px;bottom:0;width:960px;height:1080px;display:flex;align-items:flex-end;gap:8px;padding:0 40px;opacity:.16"></div>
   <div class="chip" style="left:120px;top:100px">Clientes</div>
-  <div class="abs" style="left:120px;top:250px;width:780px"><div class="disp" id="s3cn1" style="font-size:330px">0</div>
-    <div class="disp y" style="font-size:96px;margin-top:20px"><span class="mask"><i id="s3cl1">Clientes atendidos<br>por mês</i></span></div></div>
-  <div class="abs" style="left:1080px;top:250px;width:780px"><div class="disp" id="s3cn2" style="font-size:330px">0</div>
-    <div class="disp y" style="font-size:96px;margin-top:20px"><span class="mask"><i id="s3cl2">Clientes ativos<br>nos últimos 90 dias</i></span></div></div>
+  <div class="abs" style="left:120px;top:250px;width:780px"><div class="disp" id="s3cn1" style="font-size:250px">0</div>
+    <div class="disp y" style="font-size:66px;margin-top:20px"><span class="mask"><i id="s3cl1">Clientes atendidos<br>por mês</i></span></div></div>
+  <div class="abs" style="left:1080px;top:250px;width:780px"><div class="disp" id="s3cn2" style="font-size:250px">0</div>
+    <div class="disp y" style="font-size:66px;margin-top:20px"><span class="mask"><i id="s3cl2">Clientes ativos<br>nos últimos 90 dias</i></span></div></div>
   <div class="abs" id="s3cico" style="left:880px;top:820px;width:160px;height:160px;background:var(--yellow);border-radius:50%;display:flex;align-items:center;justify-content:center"><img src="assets/image31.png" width="84" style="filter:invert(1) brightness(0.1)"></div>
 </section>
 
@@ -122,24 +122,24 @@ svg{overflow:visible}
   <svg class="abs" id="s4svg" style="left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
   <div class="chip" style="left:1080px;top:100px">04 · Estrutura</div>
   <div class="abs" style="left:1080px;top:190px">
-    <div class="disp" id="s4n" style="font-size:420px">0</div>
-    <div class="disp y" style="font-size:150px;margin-top:6px"><span class="mask"><i id="s4l">Unidades</i></span></div>
+    <div class="disp" id="s4n" style="font-size:340px">0</div>
+    <div class="disp y" style="font-size:112px;margin-top:6px"><span class="mask"><i id="s4l">Unidades</i></span></div>
     <div class="body" id="s4t" style="margin-top:28px;width:720px;color:#cfe0f2"><span class="mask"><i>Matriz em Guarulhos (SP) e 16 filiais — todas com o mesmo padrão de qualidade e atendimento.</i></span></div>
   </div>
   <div class="abs" id="s4stats" style="left:1080px;top:850px;display:flex;gap:60px">
-    <div><div class="disp" id="s4a" style="font-size:96px">0</div><div class="cond" style="font-size:24px;color:#9fb8d4">m² armazenagem</div></div>
-    <div><div class="disp" id="s4b" style="font-size:96px">0</div><div class="cond" style="font-size:24px;color:#9fb8d4">t / ano</div></div>
+    <div><div class="disp" id="s4a" style="font-size:72px">0</div><div class="cond" style="font-size:24px;color:#9fb8d4">m² armazenagem</div></div>
+    <div><div class="disp" id="s4b" style="font-size:72px">0</div><div class="cond" style="font-size:24px;color:#9fb8d4">t / ano</div></div>
   </div>
 </section>
 
 <!-- ============ S5 CADEIA ============ -->
 <section class="scene" id="s5" style="background:var(--ice);color:var(--ink)">
   <div class="chip" style="left:140px;top:70px;color:var(--navy);background:rgba(0,58,112,.07)">Cadeia de valor integrada</div>
-  <div class="abs disp n" style="left:140px;top:132px;font-size:100px"><span class="mask"><i id="s5t">Das usinas à sua linha</i></span></div>
+  <div class="abs disp n" style="left:140px;top:132px;font-size:78px"><span class="mask"><i id="s5t">Das usinas à sua linha</i></span></div>
   <svg class="abs" id="s5svg" style="left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
   <div class="card" id="s5g" style="left:110px;top:400px;width:390px;height:160px;display:flex;align-items:center;justify-content:center"><img src="assets/image19.png" width="290"></div>
   <div class="card" id="s5t2" style="left:110px;top:590px;width:390px;height:160px;display:flex;align-items:center;justify-content:center"><img src="assets/image20.jpg" width="280"></div>
-  <div class="card" id="s5c" style="left:110px;top:780px;width:390px;height:160px;background:var(--blue);display:flex;align-items:center;justify-content:center;gap:20px;color:#fff"><img src="assets/image24.png" width="90"><div class="disp" style="font-size:44px;line-height:.9">Fontes<br>internacionais</div></div>
+  <div class="card" id="s5c" style="left:110px;top:780px;width:390px;height:160px;background:var(--blue);display:flex;align-items:center;justify-content:center;gap:20px;color:#fff"><img src="assets/image24.png" width="90"><div class="disp" style="font-size:31px;line-height:.9">Fontes<br>internacionais</div></div>
   <div class="abs" id="s5hub" style="left:660px;top:330px;width:600px;height:600px">
     <div id="s5r1" class="abs" style="inset:0;border-radius:50%;border:3px dashed var(--blue)"></div>
     <div id="s5core" class="abs" style="left:110px;top:110px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#0a5da6,#003A70);box-shadow:0 30px 80px rgba(0,58,112,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center">
@@ -158,18 +158,18 @@ svg{overflow:visible}
   <div class="abs" id="s6p3" style="left:960px;top:0;width:480px;height:1080px;background:#12325f"></div>
   <div class="abs" id="s6p4" style="left:1440px;top:0;width:480px;height:1080px;background:var(--yellow)"></div>
   <div class="chip" id="s6chip" style="left:60px;top:70px;font-size:26px">02 · Parceria</div>
-  <div class="abs disp" id="s6h" style="left:60px;top:140px;font-size:96px"><span class="mask"><i>O que nossos clientes recebem</i></span></div>
-  <div class="abs" id="s6c1" style="left:60px;top:430px;width:400px"><div class="disp" id="s6n1" style="font-size:340px">0</div><div class="disp y" style="font-size:54px">meses sem<br>nenhum atraso</div><div class="cond" style="font-size:26px;margin-top:20px;color:#cfe0f2">Segurança de abastecimento</div></div>
-  <div class="abs" id="s6c2" style="left:540px;top:430px;width:400px"><div class="disp" style="font-size:230px;line-height:.95">0,<span id="s6n2">0</span></div><div class="disp" style="font-size:54px;color:var(--yellow)">mm/m máx.<br>de empeno</div><div class="cond" style="font-size:26px;margin-top:20px;color:#dbe8f6">Garantia de qualidade</div></div>
-  <div class="abs" id="s6c3" style="left:1020px;top:430px;width:400px"><div id="s6dots" style="display:flex;gap:10px;height:110px;margin-bottom:26px"></div><div class="disp" style="font-size:90px;line-height:.9">Entregas<br><span class="y">semanais</span></div><div class="cond" style="font-size:26px;margin-top:20px;color:#9fb8d4">Custo e fluxo de caixa</div></div>
-  <div class="abs" id="s6c4" style="left:1500px;top:430px;width:380px;color:var(--ink)"><img id="s6mic" src="assets/image12.png" width="200" style="filter:invert(1) brightness(.15);margin-bottom:10px"><div class="disp" style="font-size:140px;line-height:.9">Giga<br>Lab</div><div class="cond" style="font-size:26px;margin-top:20px">Um dos labs metalográficos mais equipados do Brasil</div></div>
+  <div class="abs disp" id="s6h" style="left:60px;top:140px;font-size:72px"><span class="mask"><i>O que nossos clientes recebem</i></span></div>
+  <div class="abs" id="s6c1" style="left:60px;top:430px;width:400px"><div class="disp" id="s6n1" style="font-size:250px">0</div><div class="disp y" style="font-size:40px">meses sem<br>nenhum atraso</div><div class="cond" style="font-size:26px;margin-top:20px;color:#cfe0f2">Segurança de abastecimento</div></div>
+  <div class="abs" id="s6c2" style="left:540px;top:430px;width:400px"><div class="disp" style="font-size:170px;line-height:.95">0,<span id="s6n2">0</span></div><div class="disp" style="font-size:40px;color:var(--yellow)">mm/m máx.<br>de empeno</div><div class="cond" style="font-size:26px;margin-top:20px;color:#dbe8f6">Garantia de qualidade</div></div>
+  <div class="abs" id="s6c3" style="left:1020px;top:430px;width:400px"><div id="s6dots" style="display:flex;gap:10px;height:110px;margin-bottom:26px"></div><div class="disp" style="font-size:62px;line-height:.9">Entregas<br><span class="y">semanais</span></div><div class="cond" style="font-size:26px;margin-top:20px;color:#9fb8d4">Custo e fluxo de caixa</div></div>
+  <div class="abs" id="s6c4" style="left:1500px;top:430px;width:380px;color:var(--ink)"><img id="s6mic" src="assets/image12.png" width="200" style="filter:invert(1) brightness(.15);margin-bottom:10px"><div class="disp" style="font-size:100px;line-height:.9">Giga<br>Lab</div><div class="cond" style="font-size:26px;margin-top:20px">Um dos labs metalográficos mais equipados do Brasil</div></div>
 </section>
 
 <!-- ============ S7 PORTFOLIO ============ -->
 <section class="scene" id="s7" style="background:var(--ice);color:var(--ink)">
-  <div class="abs" id="s7bg" style="right:0;top:0;width:1080px;height:1080px;background:var(--navy);clip-path:polygon(18% 0,100% 0,100% 100%,0 100%)"></div>
+  <div class="abs" id="s7bg" style="right:0;top:0;width:1080px;height:1080px;background:var(--navy);clip-path:polygon(30% 0,100% 0,100% 100%,14% 100%)"></div>
   <div class="chip" style="left:140px;top:90px;color:var(--navy);background:rgba(0,58,112,.07)">03 · Portfólio</div>
-  <div class="abs disp n" style="left:140px;top:150px;font-size:130px"><span class="mask"><i id="s7h">Produtos<br>que movem<br>a indústria</i></span></div>
+  <div class="abs disp n" style="left:140px;top:150px;font-size:100px"><span class="mask"><i id="s7h">Produtos<br>que movem<br>a indústria</i></span></div>
   <div class="abs" id="s7list" style="left:140px;top:590px;width:800px"></div>
   <div class="abs" id="s7imgs" style="left:1000px;top:130px;width:820px;height:820px"></div>
   <div class="abs disp y" id="s7num" style="left:1040px;top:880px;font-size:120px;opacity:.9"></div>
@@ -190,14 +190,14 @@ svg{overflow:visible}
 <!-- ============ S9 QUALIDADE ============ -->
 <section class="scene" id="s9" style="background:radial-gradient(100% 120% at 50% 0%,#0a4a86,#0B1A30)">
   <div class="chip" style="left:140px;top:90px">03 · Qualidade</div>
-  <div class="abs disp" style="left:140px;top:150px;font-size:125px"><span class="mask"><i id="s9h">Qualidade certificada,<br><span class="y">compromisso reconhecido</span></i></span></div>
+  <div class="abs disp" style="left:140px;top:150px;font-size:92px"><span class="mask"><i id="s9h">Qualidade certificada,<br><span class="y">compromisso reconhecido</span></i></span></div>
   <div id="s9st"></div>
 </section>
 
 <!-- ============ S10 GRUPO ============ -->
 <section class="scene" id="s10" style="background:var(--ice);color:var(--ink)">
   <div class="chip" style="left:140px;top:90px;color:var(--navy);background:rgba(0,58,112,.07)">04 · Um grupo</div>
-  <div class="abs disp n" style="left:140px;top:150px;font-size:150px"><span class="mask"><i id="s10h">Soluções integradas</i></span></div>
+  <div class="abs disp n" style="left:140px;top:150px;font-size:112px"><span class="mask"><i id="s10h">Soluções integradas</i></span></div>
   <svg class="abs" id="s10svg" style="left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
   <div class="card" id="s10c0" style="left:660px;top:490px;width:600px;height:300px;background:var(--navy);display:flex;align-items:center;justify-content:center"><img src="assets/image3.png" width="480"></div>
   <div class="card" id="s10c1" style="left:150px;top:830px;width:540px;height:200px;display:flex;align-items:center;justify-content:center"><img src="assets/image59.png" width="420"></div>
@@ -209,7 +209,7 @@ svg{overflow:visible}
 <!-- ============ S11 ESG ============ -->
 <section class="scene" id="s11" style="background:linear-gradient(120deg,#0071BB,#003A70 60%,#0B1A30)">
   <div class="chip" style="left:120px;top:80px">04 · ESG</div>
-  <div class="abs disp" style="left:120px;top:140px;font-size:150px"><span class="mask"><i id="s11h">Responsabilidade<br>em como operamos</i></span></div>
+  <div class="abs disp" style="left:120px;top:140px;font-size:112px"><span class="mask"><i id="s11h">Responsabilidade<br>em como operamos</i></span></div>
   <div class="abs" id="s11amb" style="left:120px;top:480px;width:900px"></div>
   <div class="abs" id="s11soc" style="left:1100px;top:480px;width:700px"></div>
 </section>
@@ -222,9 +222,9 @@ svg{overflow:visible}
   </svg>
   <div class="abs" style="inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;text-align:center">
     <img id="s12logo" src="assets/image3.png" width="760">
-    <div class="disp" style="font-size:150px;margin-top:20px"><span class="mask"><i id="s12h1">Obrigado pela <span class="y">parceria!</span></i></span></div>
+    <div class="disp" style="font-size:112px;margin-top:20px"><span class="mask"><i id="s12h1">Obrigado pela <span class="y">parceria!</span></i></span></div>
     <div class="body" style="font-size:46px;color:#cfe0f2"><span class="mask"><i id="s12h2">Vamos construir juntos o próximo capítulo.</i></span></div>
-    <div id="s12url" class="disp" style="font-size:64px;background:var(--yellow);color:var(--ink);padding:22px 50px 16px;margin-top:20px;letter-spacing:.04em;text-transform:none;border-radius:12px">www.acovisa.com.br</div>
+    <div id="s12url" class="disp" style="font-size:52px;background:var(--yellow);color:var(--ink);padding:22px 50px 16px;margin-top:20px;letter-spacing:.04em;text-transform:none;border-radius:12px">www.acovisa.com.br</div>
   </div>
   <div class="grain"></div>
 </section>
@@ -280,11 +280,6 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   swoosh('#s1y','#s1b',t+.2);
   const m=[...document.querySelectorAll('#s1txt i')];
   m.forEach((e,i)=>master.fromTo(e,{yPercent:118,rotation:4},{yPercent:0,rotation:0,duration:.9,ease:'expo.out'},t+.9+i*.28));
-  /* sparks */
-  const box=$('#s1sparks');
-  for(let i=0;i<46;i++){const d=document.createElement('div');const s=4+rnd()*10;d.style.cssText=`position:absolute;width:${s}px;height:${s*(rnd()>.5?3:1)}px;background:${rnd()>.3?'#FFCD00':'#fff'};border-radius:2px`;box.appendChild(d);
-    const a=-Math.PI*(.05+rnd()*.9),r=180+rnd()*700;
-    master.fromTo(d,{x:0,y:0,opacity:1,rotation:0},{x:Math.cos(a)*r+300,y:Math.sin(a)*r,rotation:rnd()*360,opacity:0,duration:1+rnd()*1.2,ease:'power3.out'},t+1.9+rnd()*.15);}
   master.to('#s1txt',{scale:1.05,duration:3,ease:'none'},t+1.8);
   /* out + logo */
   m.forEach((e,i)=>master.to(e,{yPercent:-118,duration:.55,ease:'power3.in'},t+4.1+i*.08));
@@ -344,8 +339,8 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
     el.className='card';el.style.cssText=`left:${x}px;top:400px;width:540px;height:580px;overflow:hidden`;
     el.innerHTML=`<div style="position:absolute;left:0;top:0;width:100%;height:14px;background:${['#0071BB','#FFCD00','#003A70'][i]}"></div>
      <div style="position:absolute;left:44px;top:56px;width:120px;height:120px;border-radius:50%;background:#003A70;display:flex;align-items:center;justify-content:center"><img src="assets/${d[0]}" width="64"></div>
-     <div class="disp n" id="tn${i}" style="position:absolute;left:40px;top:200px;font-size:${i==2?170:230}px">0</div>
-     <div class="disp b" style="position:absolute;left:44px;top:420px;font-size:52px">${d[2]}</div>
+     <div class="disp n" id="tn${i}" style="position:absolute;left:40px;top:200px;font-size:${i==2?128:168}px">0</div>
+     <div class="disp b" style="position:absolute;left:44px;top:420px;font-size:38px">${d[2]}</div>
      <div class="cond" style="position:absolute;left:44px;top:490px;font-size:24px;color:#64748B">${d[3]}</div>`;
     c.appendChild(el);
     master.fromTo(el,{y:700,rotation:6*(i-1),opacity:0},{y:0,rotation:0,opacity:1,duration:1,ease:'back.out(1.3)'},t+.5+i*.28);
@@ -414,7 +409,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   const svg=$('#s5svg'),NS='http://www.w3.org/2000/svg';
   const segs=['Usinagem de precisão','Equipamentos de mineração','Redutores e motores','Forjaria','Transmissão de energia','Peças agrícolas'];
   const sg=$('#s5seg');
-  segs.forEach((s,i)=>{const d=document.createElement('div');d.className='disp';d.style.cssText=`height:98px;margin-bottom:14px;display:flex;align-items:center;padding:0 20px;font-size:35px;background:${i%2?'#0071BB':'#003A70'};color:#fff;border-left:10px solid #FFCD00;transform-origin:left`;d.textContent=s;sg.appendChild(d);
+  segs.forEach((s,i)=>{const d=document.createElement('div');d.className='disp';d.style.cssText=`height:98px;margin-bottom:14px;display:flex;align-items:center;padding:0 18px;font-size:27px;background:${i%2?'#0071BB':'#003A70'};color:#fff;border-left:10px solid #FFCD00;transform-origin:left`;d.textContent=s;sg.appendChild(d);
     master.fromTo(d,{scaleX:0,opacity:0},{scaleX:1,opacity:1,duration:.7,ease:'expo.out'},t+2.6+i*.14);
     const y=330+i*112+49;
     const p=document.createElementNS(NS,'path');p.setAttribute('d',`M1250 630 C 1330 630, 1330 ${y}, 1410 ${y}`);p.setAttribute('fill','none');p.setAttribute('stroke','#0071BB');p.setAttribute('stroke-width','3');p.setAttribute('stroke-dasharray','12 12');svg.appendChild(p);
@@ -439,7 +434,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   count('#s6n1',0,15,t+1.3,1.8,null);
   const o={v:0},e=$('#s6n2');master.to(o,{v:5,duration:1.3,ease:'power2.out',onUpdate(){e.textContent=Math.round(o.v)}},t+1.6);
   const dt=$('#s6dots');const days=['S','T','Q','Q','S','S','D'];
-  for(let i=0;i<7;i++){const d=document.createElement('div');d.style.cssText='flex:1;border:4px solid #FFCD00;display:flex;align-items:flex-end;justify-content:center;font-family:BC;font-weight:800;font-size:34px;padding-bottom:6px;color:#fff';d.textContent=days[i];dt.appendChild(d);
+  for(let i=0;i<7;i++){const d=document.createElement('div');d.style.cssText='flex:1;border:4px solid #FFCD00;display:flex;align-items:flex-end;justify-content:center;font-family:SFT Schrifted Sans Comp;font-weight:800;font-size:34px;padding-bottom:6px;color:#fff';d.textContent=days[i];dt.appendChild(d);
     master.fromTo(d,{backgroundColor:'rgba(255,205,0,0)'},{backgroundColor:i==2?'#FFCD00':'rgba(255,205,0,0)',color:i==2?'#1A2B4A':'#fff',duration:.3},t+2+i*.2);}
   master.fromTo('#s6mic',{rotation:-25,scale:.5},{rotation:0,scale:1,duration:.9,ease:'back.out(2)'},t+1.7);
   master.to(['#s6p1','#s6p2','#s6p3','#s6p4'],{filter:'brightness(1.08)',duration:1,yoyo:true,repeat:3,stagger:.2},t+3);
@@ -453,7 +448,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   const P=[['image37.png','Barra laminada a quente'],['image38.png','Barra de aço trefilada'],['image41.jpg','Barra forjada'],['image39.jpg','Tubos mecânicos de precisão'],['image40.jpg','Chapa de aço carbono']];
   const list=$('#s7list'),imgs=$('#s7imgs'),num=$('#s7num');
   P.forEach((p,i)=>{
-    const it=document.createElement('div');it.className='disp';it.style.cssText='font-size:58px;height:76px;display:flex;align-items:center;gap:22px;color:#64748B;position:relative;overflow:hidden';
+    const it=document.createElement('div');it.className='disp';it.style.cssText='font-size:40px;height:76px;display:flex;align-items:center;gap:22px;color:#64748B;position:relative;overflow:hidden';
     it.innerHTML=`<span style="display:inline-block;width:0;height:6px;background:#FFCD00" class="bar"></span><span class="tx">${p[1]}</span>`;list.appendChild(it);
     master.fromTo(it,{x:-200,opacity:0},{x:0,opacity:1,duration:.7},t+.8+i*.1);
     const t0=t+1.2+i*1.35;
@@ -479,7 +474,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
     const d=document.createElement('div');d.style.cssText=`position:absolute;inset:0;z-index:${i+1};overflow:hidden`;d.innerHTML=`<img src="assets/${p[0]}" style="position:absolute;left:0;top:-420px;width:1920px;height:1920px;object-fit:cover">`;ph.appendChild(d);
     master.fromTo(d,{clipPath:'inset(100% 0 0 0)'},{clipPath:'inset(0% 0 0 0)',duration:.6,ease:'expo.inOut'},t0);
     master.fromTo(d.firstChild,{scale:1.35,y:60},{scale:1.02,y:-40,duration:step+.6,ease:'none'},t0);
-    const w=document.createElement('div');w.style.cssText='position:absolute;left:0;top:420px;';w.innerHTML=`<div class="disp" style="font-size:260px;color:#fff;text-shadow:0 10px 60px rgba(0,0,0,.4)"><span class="mask"><i>${p[1]}</i></span></div>`;tx.appendChild(w);
+    const w=document.createElement('div');w.style.cssText='position:absolute;left:0;top:420px;';w.innerHTML=`<div class="disp" style="font-size:200px;color:#fff;text-shadow:0 10px 60px rgba(0,0,0,.4)"><span class="mask"><i>${p[1]}</i></span></div>`;tx.appendChild(w);
     master.set(w,{visibility:'hidden'},0);
     master.set(w,{visibility:'visible'},t0+.2);master.set(w,{visibility:'hidden'},t0+step+.2);
     master.fromTo(w.querySelector('i'),{yPercent:120},{yPercent:0,duration:.6,ease:'expo.out'},t0+.25);
@@ -492,9 +487,9 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   master.fromTo('#s8end',{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0% 0 0)',duration:.6,ease:'expo.inOut'},tEnd);
   const ec=$('#s8endc');
   master.set(ec,{visibility:'visible'},tEnd+.4);
-  ec.innerHTML=`<div class="abs disp" style="left:100px;top:180px;font-size:120px;color:#fff"><span class="mask"><i id="s8e0">Da barra bruta à pronta para usinar</i></span></div>
+  ec.innerHTML=`<div class="abs disp" style="left:100px;top:180px;font-size:88px;color:#fff"><span class="mask"><i id="s8e0">Da barra bruta à pronta para usinar</i></span></div>
    <div class="abs" style="left:100px;top:480px;display:flex;gap:40px">
-   ${[['8','Processos de acabamento'],['3','Térmico e superfície'],['4','Métodos de ensaio']].map((s,i)=>`<div id="s8k${i}"><div class="disp y" id="s8kn${i}" style="font-size:320px">0</div><div class="disp" style="font-size:50px;width:470px;white-space:normal;line-height:.95;margin-top:10px">${s[1]}</div></div>`).join('')}</div>`;
+   ${[['8','Processos de acabamento'],['3','Térmico e superfície'],['4','Métodos de ensaio']].map((s,i)=>`<div id="s8k${i}"><div class="disp y" id="s8kn${i}" style="font-size:250px">0</div><div class="disp" style="font-size:38px;width:470px;white-space:normal;line-height:.95;margin-top:10px">${s[1]}</div></div>`).join('')}</div>`;
   master.fromTo('#s8e0',{yPercent:120},{yPercent:0,duration:.8,ease:'expo.out'},tEnd+.5);
   [8,3,4].forEach((v,i)=>{master.fromTo('#s8k'+i,{y:100,opacity:0},{y:0,opacity:1,duration:.7},tEnd+.9+i*.2);count('#s8kn'+i,0,v,tEnd+1+i*.2,1.1,null,'power2.out')});
 })();
@@ -508,7 +503,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   S.forEach((s,i)=>{
     const x=210+i*570;
     const d=document.createElement('div');d.style.cssText=`position:absolute;left:${x}px;top:430px;width:400px;text-align:center`;
-    d.innerHTML=`<div style="width:343px;margin:0 auto;box-shadow:0 40px 70px rgba(0,0,0,.5)"><img src="assets/${s[0]}" width="343" style="display:block"></div><div class="disp y" style="font-size:66px;margin-top:40px">${s[1]}</div><div class="cond" style="font-size:28px;color:#cfe0f2;margin-top:10px">${s[2]}</div>`;
+    d.innerHTML=`<div style="width:343px;margin:0 auto;box-shadow:0 40px 70px rgba(0,0,0,.5)"><img src="assets/${s[0]}" width="343" style="display:block"></div><div class="disp y" style="font-size:48px;margin-top:40px;white-space:nowrap">${s[1]}</div><div class="cond" style="font-size:28px;color:#cfe0f2;margin-top:10px">${s[2]}</div>`;
     c.appendChild(d);
     master.fromTo(d,{y:-900,rotation:-25+i*20,opacity:0},{y:0,rotation:(i-1)*3,opacity:1,duration:1.1,ease:'bounce.out'},t+1+i*.4);
     master.to(d,{y:-12,duration:1.6,ease:'sine.inOut',yoyo:true,repeat:2},t+2.6+i*.2);
@@ -538,16 +533,16 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   const A=[['image70.png','Energia renovável','Mercado Livre de Energia'],['image69.png','Reciclagem','Coleta seletiva de resíduos'],['image33.png','Selo Ambiental','Desde 2008'],['image68.png','Eficiência','Iluminação natural e sistemas otimizados']];
   const amb=$('#s11amb');
   A.forEach((a,i)=>{const d=document.createElement('div');d.style.cssText='display:flex;align-items:center;gap:30px;height:124px;margin-bottom:8px';
-    d.innerHTML=`<div style="width:110px;height:110px;border-radius:50%;background:#FFCD00;display:flex;align-items:center;justify-content:center;flex:none"><img src="assets/${a[0]}" width="58" style="filter:invert(1) brightness(.15)"></div><div><div class="disp" style="font-size:66px">${a[1]}</div><div class="cond" style="font-size:26px;color:#cfe0f2">${a[2]}</div></div>`;
+    d.innerHTML=`<div style="width:110px;height:110px;border-radius:50%;background:#FFCD00;display:flex;align-items:center;justify-content:center;flex:none"><img src="assets/${a[0]}" width="58" style="filter:invert(1) brightness(.15)"></div><div><div class="disp" style="font-size:50px">${a[1]}</div><div class="cond" style="font-size:26px;color:#cfe0f2">${a[2]}</div></div>`;
     amb.appendChild(d);master.fromTo(d,{x:-300,opacity:0},{x:0,opacity:1,duration:.8,ease:'expo.out'},t+1+i*.25);
     master.fromTo(d.firstChild,{scale:0,rotation:-180},{scale:1,rotation:0,duration:.7,ease:'back.out(2)'},t+1.2+i*.25);});
   const soc=$('#s11soc');
   const L=[['image63.png',330],['image64.png',330],['image65.png',150]];
-  soc.innerHTML=`<div class="disp y" style="font-size:66px;margin-bottom:20px" id="s11st">Social</div>`;
+  soc.innerHTML=`<div class="disp y" style="font-size:50px;margin-bottom:20px" id="s11st">Social</div>`;
   L.forEach((l,i)=>{const d=document.createElement('div');d.className='card';d.style.cssText=`position:relative;height:140px;margin-bottom:22px;display:flex;align-items:center;justify-content:center;border-radius:20px`;d.innerHTML=`<img src="assets/${l[0]}" height="${i==2?110:100}">`;soc.appendChild(d);
     master.fromTo(d,{x:400,opacity:0},{x:0,opacity:1,duration:.8,ease:'expo.out'},t+1.8+i*.25);});
   master.fromTo('#s11st',{opacity:0,y:-30},{opacity:1,y:0,duration:.6},t+1.6);
-  const h=document.createElement('div');h.className='cond';h.style.cssText='font-size:26px;color:#cfe0f2;margin-top:6px';h.textContent='GRAACC · Instituto social (2016) · Cestas básicas';soc.appendChild(h);
+  const h=document.createElement('div');h.className='cond';h.style.cssText='font-size:21px;white-space:nowrap;color:#cfe0f2;margin-top:6px';h.textContent='GRAACC · Instituto social (2016) · Cestas básicas';soc.appendChild(h);
   master.fromTo(h,{opacity:0},{opacity:1,duration:.6},t+2.7);
 })();
 
