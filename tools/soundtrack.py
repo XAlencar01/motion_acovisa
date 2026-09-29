@@ -1,13 +1,17 @@
-"""Trilha do reel Açovisa: música original (Lá menor, 120 BPM) + efeitos sincronizados às animações.
+"""Trilha institucional do reel Açovisa: música original (Dó maior, 120 BPM) + desenho de som das animações.
 
-As deixas de efeito vêm do próprio index.html (window.CUES, exportadas por tools/export_cues.py),
-então cada tique de contador, texto revelado, card ou carimbo tem o seu som no tempo exato.
-Os efeitos são tonais e limpos (senos, FM, sínteses curtas): sem estrondos longos nem chiado.
+Música: piano em ostinato, cordas, pulso de baixo e percussão leve (bumbo, palmas, shaker).
+Efeitos: sopros de ar filtrados nas transições, impactos graves e curtos com acorde de piano,
+toques discretos em cards e ícones, ticks baixos nos contadores e swells nos risers.
+Sem notas melódicas "de jogo", sem sininhos e sem estrondos longos.
 
-Uso: python3 tools/soundtrack.py tools/cues.json saida.wav
+As deixas vêm do próprio index.html (window.CUES), então cada animação tem o seu som no tempo exato.
+Uso: python3 tools/soundtrack.py cues.json saida.wav
 """
 import json
+import os
 import sys
+import wave
 
 import numpy as np
 from scipy import signal
@@ -24,21 +28,22 @@ rng = np.random.default_rng(7)
 
 BEAT, BAR = 0.5, 2.0
 DROP1, BRK, DROP2, OUTRO = TS['s2'], TS['sD'], TS['s5'], TS['s12']
+LIFT = TS['s8']                              # a partir daqui as cordas ganham a oitava de cima
 FINAL = 2 * round((OUTRO + 5) / 2)          # acorde final, no início de um compasso
 
 # ---------------------------------------------------------------- harmonia
 def mtof(m):
     return 440.0 * 2 ** ((m - 69) / 12)
 
-CH = {'Am': [57, 60, 64, 69], 'F': [53, 57, 60, 65], 'C': [55, 60, 64, 67], 'G': [55, 59, 62, 67]}
-ROOT = {'Am': 45, 'F': 41, 'C': 48, 'G': 43}
-MAIN = ['Am', 'F', 'C', 'G']
-BRKP = ['F', 'C', 'G', 'Am', 'F', 'G']        # quebra: termina em G para resolver em Am no drop
-PEN = [0, 3, 5, 7, 10]                       # pentatônica de Lá menor
+CH = {'C': [55, 60, 64, 67], 'G': [55, 59, 62, 67], 'Am': [57, 60, 64, 69], 'F': [53, 57, 60, 65],
+      'Cadd9': [55, 60, 62, 64, 67]}
+ROOT = {'C': 48, 'G': 43, 'Am': 45, 'F': 41, 'Cadd9': 48}
+MAIN = ['C', 'G', 'Am', 'F']
+BRKP = ['Am', 'F', 'C', 'G', 'F', 'G']      # quebra: termina em G para resolver em C no drop
 
 def chord_at(t):
     if t >= FINAL:
-        return 'Am'
+        return 'Cadd9'
     if FINAL - BAR <= t < FINAL:
         return 'G'
     if BRK <= t < DROP2:
@@ -46,22 +51,14 @@ def chord_at(t):
     start = DROP2 if t >= DROP2 else 0.0
     return MAIN[int((t - start) // BAR) % 4]
 
-def pent(i, base):
-    return base + PEN[i % 5] + 12 * (i // 5)
-
 # ---------------------------------------------------------------- utilidades
-B = {k: np.zeros((2, N)) for k in ('kick', 'perc', 'bass', 'pad', 'arp', 'keys', 'sfx', 'send')}
+B = {k: np.zeros((2, N)) for k in ('kick', 'perc', 'bass', 'strings', 'piano', 'sfx', 'send')}
 
 def tt(d):
     return np.arange(int(d * SR)) / SR
 
 def pan2(sig, pan=0.0):
     a = (pan + 1) * np.pi / 4
-    return np.vstack([sig * np.cos(a), sig * np.sin(a)]) * np.sqrt(2)
-
-def pan_sweep(sig, p0, p1):
-    p = np.linspace(p0, p1, len(sig))
-    a = (p + 1) * np.pi / 4
     return np.vstack([sig * np.cos(a), sig * np.sin(a)]) * np.sqrt(2)
 
 def put(bus, t, sig, g=1.0, pan=0.0, send=0.0):
@@ -73,7 +70,7 @@ def put(bus, t, sig, g=1.0, pan=0.0, send=0.0):
         return
     j = min(N, i + s.shape[1])
     seg = s[:, :j - i] * g
-    k = min(int(.004 * SR), seg.shape[1])                    # micro-fade: evita estalos no fim das notas
+    k = min(int(.004 * SR), seg.shape[1])                    # micro-fade: evita estalos
     seg[:, seg.shape[1] - k:] *= np.linspace(1, 0, k)
     B[bus][:, i:j] += seg
     if send:
@@ -92,6 +89,9 @@ def osc(f, n, ph0=0.0):
     f = np.broadcast_to(np.asarray(f, float), (n,))
     return np.sin(ph0 + 2 * np.pi * np.cumsum(f) / SR)
 
+def noise(n):
+    return rng.standard_normal(n)
+
 def _sos(kind, fc, order=2):
     if kind == 'band':
         return signal.butter(order, [fc[0] / (SR / 2), fc[1] / (SR / 2)], 'band', output='sos')
@@ -101,15 +101,19 @@ def lp(x, fc, order=2): return signal.sosfilt(_sos('low', fc, order), x, axis=-1
 def hp(x, fc, order=2): return signal.sosfilt(_sos('high', fc, order), x, axis=-1)
 def bp(x, lo, hi, order=2): return signal.sosfilt(_sos('band', (lo, hi), order), x, axis=-1)
 
-def lp_sweep(x, fcs, C=512):
-    """Passa-baixa com corte variável no tempo (mono ou estéreo)."""
+def sweep(x, fcs, kind='low', q=1.4, C=256):
+    """Filtro com frequência variável no tempo (passa-baixa ou passa-banda), mono ou estéreo."""
     mono = x.ndim == 1
     x = np.atleast_2d(x)
     fcs = np.broadcast_to(np.asarray(fcs, float), (x.shape[1],))
-    y = np.empty_like(x)
-    zi = None
+    y = np.empty_like(x); zi = None
     for k in range(0, x.shape[1], C):
-        sos = _sos('low', float(np.clip(fcs[k], 40, SR * .45)))
+        fc = float(np.clip(fcs[k], 40, SR * .4))
+        if kind == 'band':
+            w = 1 / (2 * q)
+            sos = _sos('band', (fc * (1 - w), min(fc * (1 + w), SR * .45)))
+        else:
+            sos = _sos('low', fc)
         if zi is None:
             zi = np.zeros((x.shape[0], sos.shape[0], 2))
         for c in range(x.shape[0]):
@@ -119,7 +123,10 @@ def lp_sweep(x, fcs, C=512):
 def auto(pts):
     return np.interp(np.arange(N) / SR, [p[0] for p in pts], [p[1] for p in pts])
 
-def fit(parts):
+def norm(x):
+    return x / (np.abs(x).max() + 1e-9)
+
+def mix2(parts):
     n = max(p.shape[-1] for p in parts)
     out = np.zeros((2, n))
     for p in parts:
@@ -128,86 +135,75 @@ def fit(parts):
     return out
 
 # ---------------------------------------------------------------- instrumentos
-def kick(dec=7.5):
-    t = tt(.42)
-    f = 46 + 150 * np.exp(-t * 40) + 25 * np.exp(-t * 8)
-    body = osc(f, len(t)) * np.exp(-t * dec) * np.minimum(1, t * 900)
-    click = np.sin(2 * np.pi * 3000 * t) * np.exp(-t * 1100) * .3
-    return np.tanh((body + click) * 1.8) / np.tanh(1.8)
+def kick(dec=6.5, g_click=.12):
+    t = tt(.45)
+    f = 44 + 110 * np.exp(-t * 35) + 18 * np.exp(-t * 8)
+    body = osc(f, len(t)) * np.exp(-t * dec) * np.minimum(1, t * 700)
+    click = lp(noise(len(t)), 4000) * np.exp(-t * 700) * g_click
+    return np.tanh((body + click) * 1.5) / np.tanh(1.5)
 
 def clap():
-    t = tt(.3)
-    n = rng.standard_normal(len(t))
-    env = sum((t >= d) * np.exp(-np.clip(t - d, 0, None) * 160) for d in (0, .008, .016)) * .6
-    env += (t >= .022) * np.exp(-np.clip(t - .022, 0, None) * 26)
-    return bp(n, 1000, 3500) * env * .7 + np.sin(2 * np.pi * 185 * t) * np.exp(-t * 45) * .5
+    t = tt(.35)
+    env = sum((t >= d) * np.exp(-np.clip(t - d, 0, None) * 140) for d in (0, .01, .02)) * .5
+    env += (t >= .026) * np.exp(-np.clip(t - .026, 0, None) * 20)
+    return lp(bp(noise(len(t)), 900, 2600), 3000) * env + np.sin(2 * np.pi * 180 * t) * np.exp(-t * 40) * .35
 
-def hat(open_=False):
-    t = tt(.3 if open_ else .07)
-    fr = np.array([205.3, 304.4, 369.6, 522.7, 540.0, 800.0]) * 1.6        # hi-hat metálico (808), sem ruído
-    x = sum(np.sign(np.sin(2 * np.pi * f * t + rng.random() * 6.28)) for f in fr)
-    y = hp(x, 7000, 4) * np.exp(-t * (10 if open_ else 65)) * np.minimum(1, t * 4000)
-    return y / np.abs(y).max()
+def snare():
+    t = tt(.22)
+    return lp(bp(noise(len(t)), 1200, 4200), 5000) * np.exp(-t * 26) * .8 + osc(190 * (1 + .2 * np.exp(-t * 40)), len(t)) * np.exp(-t * 30) * .5
 
-def tom(f0):
-    t = tt(.3)
-    return osc(f0 * (1 + .6 * np.exp(-t * 30)), len(t)) * np.exp(-t * 10) * np.minimum(1, t * 800)
+def shaker(k):
+    t = tt(.07)
+    return bp(noise(len(t)), 4500, 9000) * np.exp(-t * 60) * np.minimum(1, t / .006)
 
-_bass = {}
-def bass_note(m, d=.22, bright=1.0):
-    key = (m, d, bright)
-    if key not in _bass:
+_pn = {}
+def piano(m, vel=.8, d=2.2):
+    """Piano sintetizado: parciais levemente inarmônicas, duas cordas por nota e martelo suave."""
+    vel = round(vel, 2)
+    key = (m, vel, d)
+    if key not in _pn:
+        t = tt(d); n = len(t); f = mtof(m); y = np.zeros(n)
+        for h in range(1, 12):
+            fh = f * h * np.sqrt(1 + .00035 * h * h)
+            if fh > SR * .42:
+                break
+            a = (1 / h ** 1.15) * (.35 + .65 * vel) ** (h * .5)
+            dec = .55 + .32 * h + f / 900
+            for c in (-.8, .8):
+                y += a * .5 * np.sin(2 * np.pi * fh * 2 ** (c / 1200) * t + rng.random() * 6.28) * np.exp(-t * dec)
+        k = int(.006 * SR)
+        y[:k] += lp(noise(k), 2200) * np.hanning(k) * .12 * vel
+        y *= np.minimum(1, t * 900) * np.clip((d - t) / .25, 0, 1)
+        _pn[key] = norm(y) * vel
+    return _pn[key]
+
+def strings(ms, d, octave_up=False):
+    """Naipe de cordas: serras desafinadas com vibrato lento, ataque macio e violoncelo uma oitava abaixo."""
+    t = tt(d); n = len(t)
+    L = np.zeros(n); R = np.zeros(n)
+    notes = list(ms) + ([ms[-1] + 12, ms[-2] + 12] if octave_up else [])
+    for m in notes:
+        for k, c in enumerate((-12, -5, 5, 12)):
+            vib = 1 + .0018 * np.sin(2 * np.pi * (4.8 + .3 * k) * t + rng.random() * 6.28)
+            v = saw(mtof(m) * 2 ** (c / 1200) * vib, n)
+            if k % 2 == 0: L += v * .8; R += v * .3
+            else: R += v * .8; L += v * .3
+    cello = saw(mtof(ms[0] - 12) * (1 + .0015 * np.sin(2 * np.pi * 4.6 * t)), n) * 1.2
+    L += cello; R += cello
+    env = np.minimum(1, t / .45) ** 1.5 * np.clip((d - t) / .4, 0, 1)
+    return np.vstack([L, R]) * env / (len(notes) * 2)
+
+_bs = {}
+def bass_pulse(m, d=.24):
+    if (m, d) not in _bs:
         t = tt(d); f = mtof(m)
-        s = saw(f, len(t)) * .55 + osc(f, len(t)) * .35
-        s = lp_sweep(s, 180 + 900 * bright * np.exp(-t * 12))
-        sub = osc(f / 2, len(t)) * .7
-        env = np.minimum(1, t * 300) * np.exp(-t * 2.2) * np.clip((d - t) / .015, 0, 1)
-        _bass[key] = (s + sub) * env
-    return _bass[key]
+        s = sweep(saw(f, len(t)) * .5 + osc(f, len(t)) * .5, 140 + 520 * np.exp(-t * 10))
+        env = np.minimum(1, t * 250) * np.exp(-t * 2) * np.clip((d - t) / .02, 0, 1)
+        _bs[(m, d)] = (s + osc(f / 2, len(t)) * .6) * env
+    return _bs[(m, d)]
 
-def pad_chord(ms, d):
-    t = tt(d); n = len(t)
-    L = np.zeros(n); R = np.zeros(n)
-    for m in ms:
-        for k, c in enumerate((-11, -4, 4, 11)):
-            v = saw(mtof(m) * 2 ** (c / 1200), n)
-            if k % 2 == 0: L += v * .75; R += v * .25
-            else: R += v * .75; L += v * .25
-    env = np.minimum(1, t / .18) * np.clip((d - t) / .25, 0, 1)
-    return np.vstack([L, R]) * env / (len(ms) * 2)
-
-_pl = {}
-def pluck(m):
-    if m not in _pl:
-        t = tt(.3); f = mtof(m)
-        s = saw(f, len(t)) * .6 + osc(2 * f, len(t)) * .2
-        s = lp_sweep(s, 700 + 5200 * np.exp(-t * 22))
-        _pl[m] = s * np.exp(-t * 13) * np.minimum(1, t * 1500)
-    return _pl[m]
-
-def ep(m, d=1.6):
-    t = tt(d); f = mtof(m); y = np.zeros(len(t))
-    for h, (a, dc) in enumerate([(1, 2.2), (.42, 3.5), (.18, 5), (.1, 7), (.05, 9)], 1):
-        y += a * np.sin(2 * np.pi * f * h * t + (0 if h == 1 else rng.random())) * np.exp(-t * dc)
-    y += .12 * np.sin(2 * np.pi * f * 7.1 * t) * np.exp(-t * 28)
-    return y * np.minimum(1, t * 600)
-
-def stab(ms, d=.7):
-    t = tt(d); n = len(t)
-    L = np.zeros(n); R = np.zeros(n)
-    for m in ms:
-        for k, c in enumerate((-9, 0, 9)):
-            v = saw(mtof(m) * 2 ** (c / 1200), n)
-            L += v * (.8 if k != 2 else .3); R += v * (.8 if k != 0 else .3)
-    st = lp_sweep(np.vstack([L, R]) / (len(ms) * 2), 600 + 7000 * np.exp(-t * 9))
-    return st * np.exp(-t * 5.5) * np.minimum(1, t * 500)
-
-def bell(m, d=1.4, idx=2.0, ratio=3.5, dec=3.0):
-    t = tt(d); f = mtof(m)
-    I = idx * np.exp(-t * 7)
-    return np.sin(2 * np.pi * f * t + I * np.sin(2 * np.pi * f * ratio * t)) * np.exp(-t * dec) * np.minimum(1, t * 3000)
-
-KICK, KICK_SOFT, CLAP, CHAT, OHAT = kick(), kick(11), clap(), hat(), hat(True)
+KICK, KICK_SOFT, CLAP, SNARE = kick(), kick(10, .05), clap(), snare()
+SHAKE = [shaker(k) for k in range(4)]
 
 # ---------------------------------------------------------------- composição
 kick_times = []
@@ -215,216 +211,190 @@ def kick_at(t, g=1.0, soft=False):
     put('kick', t, KICK_SOFT if soft else KICK, g)
     kick_times.append(t)
 
-def pad_bars(t0, t1):
+def strings_bars(t0, t1, octave_up=False):
     t = t0
     while t < t1 - 1e-6:
         d = min(BAR, t1 - t)
-        put('pad', t, pad_chord(CH[chord_at(t)], d + .25))
+        put('strings', t, strings(CH[chord_at(t)], d + .4, octave_up))
         t += BAR
 
-def arp(t0, t1, g=1.0):
-    pat = [0, 1, 2, 3, 2, 1, 2, 3]
-    k = 0; t = t0
-    while t < t1 - 1e-6:
-        ms = [m + 12 for m in CH[chord_at(t)]]
-        acc = 1.0 if k % 4 == 0 else .7
-        put('arp', t, pluck(ms[pat[k % 8]]), g * acc, pan=.35 * np.sin(k * 1.3))
-        k += 1; t += BEAT / 4
-
-def ep_arp(t0, t1, g=1.0):
+def piano_ostinato(t0, t1, vel=.75, step=BEAT / 2):
+    """Colcheias em acorde quebrado (padrão corporativo), com acento no tempo."""
     pat = [0, 2, 1, 3, 2, 1, 3, 2]
     k = 0; t = t0
     while t < t1 - 1e-6:
-        ms = CH[chord_at(t)]
-        put('keys', t, ep(ms[pat[k % 8]] + 12), g * (1 if k % 2 == 0 else .75), pan=-.2 + .4 * (k % 2), send=.35)
-        k += 1; t += BEAT / 2
+        ms = [m + 12 for m in CH[chord_at(t)]][:4]
+        v = vel * (1 if k % 4 == 0 else .78)
+        put('piano', t, piano(ms[pat[k % 8] % len(ms)], v), 1.0, pan=-.25 + .5 * ((k % 4) / 3), send=.25)
+        if k % 8 == 0:                                        # nota grave no início do compasso
+            put('piano', t, piano(ROOT[chord_at(t)], vel * .9, 2.6), .8, send=.25)
+        k += 1; t += step
 
-def ep_chord(t, g=1.0):
-    for m in CH[chord_at(t)]:
-        put('keys', t, ep(m, 3.0), g * .5, send=.4)
+def piano_chord(t, vel=.9, low=True):
+    ch = chord_at(t + .01)
+    ms = CH[ch] + ([ROOT[ch], ROOT[ch] - 12] if low else [])
+    for m in ms:
+        put('piano', t, piano(m, vel, 3.2), .55, send=.35)
 
-def groove(t0, t1, lift=False):
+def groove(t0, t1):
     t = t0
     while t < t1 - 1e-6:
         b = int(round(t / BEAT))
         kick_at(t)
         if b % 2 == 1:
-            put('perc', t, CLAP, .55, 0, .22)
+            put('perc', t, CLAP, .5, 0, .3)
         for s in range(4):
-            ts = t + s * BEAT / 4
-            if s == 2:
-                put('perc', ts, OHAT, .42, .25)
-            else:
-                put('perc', ts, CHAT, [.42, .17, 0, .25][s], -.3)
+            put('perc', t + s * BEAT / 4, SHAKE[s], [.42, .2, .32, .2][s], .35)
         r = ROOT[chord_at(t)]
-        put('bass', t + BEAT / 2, bass_note(r + (12 if b % 4 == 3 else 0)), 1.0)
-        put('bass', t + BEAT * .75, bass_note(r, .14, .7), .6)
-        if lift and b % 8 == 7:                               # stab no contratempo do 4º tempo
-            put('arp', t + BEAT / 2, stab([m + 12 for m in CH[chord_at(t)]], .35), .9, send=.2)
-        bar_end = (t + BEAT) % 8 < 1e-6 and (t + BEAT) < t1 - 1e-6
-        if bar_end:                                           # virada de tons a cada 4 compassos
-            for k, f in enumerate((196, 165, 147, 123)):
-                put('perc', t + k * BEAT / 4, tom(f), .45, -.4 + .27 * k, .15)
+        put('bass', t, bass_pulse(r), .8)
+        put('bass', t + BEAT / 2, bass_pulse(r), 1.0)
+        if (t + BEAT) % 16 < 1e-6 and t + BEAT < t1 - 1e-6:  # respiro a cada 8 compassos
+            for k in range(2):
+                put('perc', t + BEAT / 2 + k * BEAT / 4, SNARE, .35 + .15 * k, 0, .25)
         t += BEAT
 
-def tom_roll(t0, t1, f0=110, f1=260, g0=.15, g1=.55):
-    n = int(round((t1 - t0) / (BEAT / 4)))
-    for k in range(n):
-        x = k / max(1, n - 1)
-        put('perc', t0 + k * BEAT / 4, tom(f0 * (f1 / f0) ** x), g0 + (g1 - g0) * x, .3 * np.sin(k), .15)
+def snare_roll(t0, t1, g0=.08, g1=.5):
+    n16 = int(round((t1 - t0) / (BEAT / 4)))
+    half = n16 // 2
+    times = [t0 + k * BEAT / 4 for k in range(half)]
+    t = t0 + half * BEAT / 4
+    while t < t1 - 1e-6:
+        times.append(t); t += BEAT / 8
+    for k, ts in enumerate(times):
+        x = k / max(1, len(times) - 1)
+        put('perc', ts, SNARE, g0 + (g1 - g0) * x ** 1.6, 0, .25)
 
-# introdução: piano elétrico + pad; o logo (4.6 s) liga o arpejo; build até o drop
-ep_arp(0, 4.5, .9)
-ep_arp(4.5, DROP1 - .5, .55)
-pad_bars(0, DROP1)
-arp(4.75, DROP1 - .25, .8)
-for t in np.arange(5.0, 7.0, BEAT): kick_at(t, .55, soft=True)
-for t in np.arange(7.0, 7.75, BEAT / 2): kick_at(t, .6, soft=True)
-tom_roll(6.5, 7.75)
+# introdução: piano solo e cordas; o logo (4.6 s) abre a textura; build até o drop
+piano_ostinato(0, DROP1 - .25, .55)
+strings_bars(0, DROP1)
+for t in np.arange(5.0, 7.5, BEAT): kick_at(t, .5, soft=True)
+snare_roll(6.5, 7.75)
 
 # groove A
 groove(DROP1, BRK)
-pad_bars(DROP1, BRK)
-arp(DROP1, BRK)
+strings_bars(DROP1, BRK)
+piano_ostinato(DROP1, BRK, .8)
 
-# quebra cinematográfica durante o vídeo da matriz
-pad_bars(BRK, DROP2)
-ep_arp(BRK, DROP2 - 2, 1.0)
+# quebra durante o vídeo da matriz: cordas, piano em semínimas, baixo sustentado
+strings_bars(BRK, DROP2)
+piano_ostinato(BRK, DROP2 - 4, .6, step=BEAT)
 for t in np.arange(BRK, DROP2 - 2, BAR):
-    put('bass', t, osc(mtof(ROOT[chord_at(t)] - 12), int(BAR * SR)) * np.minimum(1, tt(BAR) * 40) * np.clip((BAR - tt(BAR)) / .1, 0, 1), .8)
+    s = osc(mtof(ROOT[chord_at(t)] - 12), int(BAR * SR)) * np.minimum(1, tt(BAR) * 30) * np.clip((BAR - tt(BAR)) / .1, 0, 1)
+    put('bass', t, s, .7)
 for t in (BRK + 4, BRK + 6): kick_at(t, .45, soft=True)
-for t in np.arange(DROP2 - 4, DROP2 - .5, BEAT): kick_at(t, .7)
-arp(DROP2 - 4, DROP2 - .25, .8)
-tom_roll(DROP2 - 1.5, DROP2 - .25)
+piano_ostinato(DROP2 - 4, DROP2 - .25, .7)
+for t in np.arange(DROP2 - 4, DROP2 - .5, BEAT): kick_at(t, .65, soft=True)
+snare_roll(DROP2 - 1.5, DROP2 - .25)
 
-# groove B até o acorde final
-groove(DROP2, FINAL, lift=True)
-pad_bars(DROP2, FINAL)
-arp(DROP2, FINAL)
+# groove B (cordas com oitava de cima a partir da montagem dos processos)
+groove(DROP2, FINAL)
+strings_bars(DROP2, LIFT)
+strings_bars(LIFT, FINAL, octave_up=True)
+piano_ostinato(DROP2, FINAL, .82)
 
-# final: acorde de Lá menor que ecoa
-put('pad', FINAL, pad_chord(CH['Am'] + [45 + 12], END - FINAL + .3))
-ep_chord(FINAL, 1.0)
-put('keys', FINAL, bell(93, 3.0, 1.2, 2.0, 1.2), .25, send=.5)
+# final: Dó com nona, cordas e piano que ecoam
+put('strings', FINAL, strings(CH['Cadd9'], END - FINAL + .4, True))
+piano_chord(FINAL, .9)
 
-# ---------------------------------------------------------------- efeitos das animações
-def sfx_tick(k):
-    t = tt(.035); f = 2600 * (1 + .04 * (k % 3))
-    return np.sin(2 * np.pi * f * t) * np.exp(-t * 380) + .45 * np.sin(2 * np.pi * 1100 * t) * np.exp(-t * 220)
+# ---------------------------------------------------------------- desenho de som das animações
+def pan_env(y, p0, p1):
+    y = np.atleast_2d(y)
+    if y.shape[0] == 1:
+        y = np.vstack([y[0], y[0]])
+    a = (np.linspace(p0, p1, y.shape[1]) + 1) * np.pi / 4
+    return np.vstack([y[0] * np.cos(a), y[1] * np.sin(a)]) * np.sqrt(2)
 
-def sfx_lock(p):
-    base = [81, 84, 86, 88, 91, 93][p % 6]
-    t = tt(1.3)
-    return (bell(base, 1.3) * .6 + bell(base + 7, 1.3, idx=1.5) * .35 + bell(base + 12, 1.3, idx=1.0, dec=5) * .15
-            + np.sin(2 * np.pi * 220 * t) * np.exp(-t * 40) * .3)
-
-def sfx_rev(i):
-    f = mtof(pent(i, 69)); t = tt(.9)
-    y = (np.sin(2 * np.pi * f * t) * np.exp(-t * 7) + .35 * np.sin(2 * np.pi * f * 4 * t) * np.exp(-t * 28)
-         + .2 * np.sin(2 * np.pi * f * 2 * t) * np.exp(-t * 12)) * np.minimum(1, t * 1500)
-    n = int(.09 * SR); x = np.arange(n) / n
-    y[:n] += osc(300 * 3.0 ** x, n) * np.sin(np.pi * x) ** 2 * .25
-    return y
-
-def sfx_pop(p):
-    t = tt(.12); n = len(t)
-    f = 420 * 2 ** (PEN[p % 5] / 12) * (1 + 1.8 * (1 - np.exp(-t * 60)))
-    return (osc(f, n) * np.exp(-t * 38) + .3 * osc(2 * f, n) * np.exp(-t * 60)) * np.minimum(1, t * 2000)
-
-def sfx_blip(i):
-    f = mtof(min(pent(i, 81), 105)); t = tt(.16)
-    return (np.sin(2 * np.pi * f * t) + .22 * np.sin(2 * np.pi * 3 * f * t)) * np.exp(-t * 30) * np.minimum(1, t * 3000)
-
-def sfx_thud(p):
-    t = tt(.4)
-    f = (95 + 8 * p) * (1 + .9 * np.exp(-t * 28))
-    return osc(f, len(t)) * np.exp(-t * 11) * np.minimum(1, t * 900) + np.sin(2 * np.pi * 1500 * t) * np.exp(-t * 260) * .25
-
-def sfx_slide():
-    n = int(.28 * SR); t = np.arange(n) / SR; x = np.clip(t / .16, 0, 1); on = (t < .16)
-    body = osc(160 * np.exp(-t * 9) + 50, n) * np.exp(-t * 12) * np.minimum(1, t * 600) * .8
-    glide = osc(1100 * .35 ** x, n) * np.sin(np.pi * x) ** 2 * on * .22
-    air = bp(rng.standard_normal(n), 1500, 5000) * np.sin(np.pi * x) ** 2 * on * .05
-    return pan_sweep(body + glide + air, .3, -.3)
-
-def sfx_whip():
-    n = int(.16 * SR); x = np.arange(n) / n
-    f = 1900 * .14 ** x
-    y = (osc(f, n) + .5 * osc(f * 1.5, n)) * np.sin(np.pi * x) ** 1.5 * .5
-    y += bp(rng.standard_normal(n), 2000, 7000) * np.sin(np.pi * x) ** 2 * .07
-    return pan_sweep(y, -.5, .5)
-
-def sfx_wipe():
-    d = .75; n = int(d * SR); x = np.arange(n) / n
-    f = 280 + 700 * np.sin(np.pi * x)
-    env = np.sin(np.pi * x) ** 2
-    y = (osc(f, n) + osc(f * 1.006, n) + .25 * osc(2 * f, n)) * env * .4
-    y += bp(rng.standard_normal(n), 1500, 6000) * env * .08
-    return pan_sweep(y, -.8, .8)
-
-def sfx_hit(t_at, big):
-    ms = CH[chord_at(t_at + .01)]
-    st = stab([m + 12 for m in ms] + [ms[0]], .9 if big else .5)
-    t = tt(.6)
-    sub = osc(40 + 110 * np.exp(-t * 18), len(t)) * np.exp(-t * (6 if big else 10)) * np.minimum(1, t * 1000)
-    click = np.sin(2 * np.pi * 3500 * t) * np.exp(-t * 1200) * .3
-    return fit([st * (1.0 if big else .6), sub * (.9 if big else .5) + click])
-
-def sfx_draw(d, lo):
-    n = int(d * SR); t = np.arange(n) / SR; x = t / d
-    f0, f1 = (180, 520) if lo else (420, 1250)
-    f = f0 * (f1 / f0) ** x * (1 + .004 * np.sin(2 * np.pi * 6 * t))
-    return pan_sweep((osc(f, n) + .3 * osc(2 * f, n)) * np.sin(np.pi * x) ** 1.5, -.6, .6)
-
-def sfx_riser(d):
+def swoosh(d, f0, f1, f2, body=.4, peak=.55, p0=-.6, p1=.6):
+    """Sopro de ar: ruído em passa-banda que varre a frequência, com um pouco de corpo grave."""
     n = int(d * SR); x = np.arange(n) / n
-    L = np.zeros(n); R = np.zeros(n)
-    for m, c in ((57, -8), (64, 8), (69, -5), (76, 5)):
-        v = saw(mtof(m) * 2 ** (x * 7 / 12) * 2 ** (c / 1200), n)
-        if c < 0: L += v; R += .4 * v
-        else: R += v; L += .4 * v
-    st = lp_sweep(np.vstack([L, R]) / 4, 300 * 25 ** x) * x ** 2.2
-    y = fit([st, osc(55 * 2 ** x, n) * x ** 2 * .5])
-    k = int(.012 * SR); y[:, -k:] *= np.linspace(1, 0, k)
+    env = np.where(x < peak, (x / peak) ** 2.2, ((1 - x) / (1 - peak)) ** 1.7)
+    cs = np.where(x < peak, f0 * (f1 / f0) ** (x / peak), f1 * (f2 / f1) ** ((x - peak) / (1 - peak)))
+    st = np.vstack([sweep(noise(n), cs, 'band', 1.3), sweep(noise(n), cs * 1.06, 'band', 1.3)])
+    st = lp(st, 6500) * env
+    st = st / (np.abs(st).max() + 1e-9)
+    lo = lp(noise(n), 200) * env
+    st += pan2(lo / (np.abs(lo).max() + 1e-9) * body * .6, 0)
+    return pan_env(norm(st), p0, p1)
+
+def sfx_tick():
+    t = tt(.02)
+    return bp(noise(len(t)), 1400, 3800) * np.exp(-t * 450) + np.sin(2 * np.pi * 1700 * t) * np.exp(-t * 520) * .25
+
+def sfx_tap():
+    t = tt(.14); n = len(t)
+    return (bp(noise(n), 700, 2400) * np.exp(-t * 170) * .5
+            + osc(200 * (1 + .12 * np.exp(-t * 50)), n) * np.exp(-t * 40) * .8)
+
+def sfx_settle():
+    t = tt(.4); n = len(t)
+    return (osc(72 * (1 + .25 * np.exp(-t * 30)), n) * np.exp(-t * 13) * np.minimum(1, t * 600)
+            + lp(noise(n), 700) * np.exp(-t * 40) * .25)
+
+def sfx_thud():
+    t = tt(.5); n = len(t)
+    return (osc(82 * (1 + .18 * np.exp(-t * 30)), n) * np.exp(-t * 10) * np.minimum(1, t * 700)
+            + lp(noise(n), 650) * np.exp(-t * 32) * .45 + bp(noise(n), 900, 3000) * np.exp(-t * 200) * .15)
+
+def sfx_impact(big):
+    t = tt(1.1 if big else .6); n = len(t)
+    sub = osc(38 + 64 * np.exp(-t * 14), n) * np.exp(-t * (4.8 if big else 8)) * np.minimum(1, t * 600)
+    body = lp(noise(n), 900) * np.exp(-t * (10 if big else 15)) * np.minimum(1, t * 1500) * .45
+    tom = osc(88 * (1 + .2 * np.exp(-t * 20)), n) * np.exp(-t * 7) * .45
+    trans = bp(noise(n), 1500, 5000) * np.exp(-t * 130) * .12
+    return norm(sub * .9 + body + tom + trans)
+
+def sfx_swell(d, tonal_at=None):
+    """Swell sem subida de tom: ruído com o filtro abrindo + acorde de cordas em crescendo."""
+    n = int(d * SR); x = np.arange(n) / n
+    air = np.vstack([sweep(noise(n), 250 * 24 ** x), sweep(noise(n), 260 * 24 ** x)]) * x ** 2.4
+    air = norm(air) * .55
+    parts = [air]
+    if tonal_at is not None:
+        st = sweep(strings(CH[chord_at(tonal_at)], d), 400 * 12 ** x) * x ** 2
+        parts.append(norm(st) * .7)
+    y = mix2(parts)
+    k = int(.015 * SR); y[:, -k:] *= np.linspace(1, 0, k)
     return y
 
-def sfx_shimmer():
-    out = np.zeros((2, int(1.8 * SR)))
-    for k, m in enumerate([93, 96, 100, 105, 100, 98, 105, 108]):
-        s = pan2(bell(m, 1.2, idx=1.2, ratio=2.0, dec=4.5) * .9 ** k, np.sin(k * 1.7) * .7)
-        i = int(k * .05 * SR)
-        out[:, i:i + s.shape[1]] += s[:, :out.shape[1] - i]
-    return out
+GAIN = {'tick': .07, 'blip': .045, 'lock': .3, 'rev': .15, 'pop': .26, 'slide': .3, 'whip': .24, 'wipe': .36,
+        'hit': .65, 'thud': .4, 'draw': .1, 'riser': .36}
+SEND = {'hit': .3, 'thud': .2, 'pop': .08, 'slide': .12, 'whip': .12, 'wipe': .12, 'lock': .15, 'riser': .25, 'rev': .1, 'draw': .2}
+GAP = {'tick': .045, 'blip': .07, 'rev': .25, 'pop': .08}   # espaçamento mínimo: evita metralhadora de sons
 
-GAIN = {'tick': .1, 'lock': .3, 'rev': .38, 'pop': .38, 'blip': .25, 'slide': .5, 'whip': .34, 'wipe': .5,
-        'hit': .7, 'thud': .55, 'draw': .2, 'riser': .4, 'shimmer': .16}
-SEND = {'lock': .35, 'rev': .3, 'pop': .15, 'blip': .3, 'shimmer': .6, 'hit': .25, 'thud': .15, 'draw': .3,
-        'riser': .2, 'wipe': .15, 'whip': .1}
-
-rev_i, rev_last = 0, -9
+last = {}
 all_cues = CUES + [{'type': 'riser', 't': DROP2 - 2, 'd': 1.95}, {'type': 'hit', 't': FINAL, 'big': 1}]
 for c in sorted(all_cues, key=lambda c: c['t']):
     ty, t = c['type'], c['t']
-    g = GAIN[ty] * c.get('g', 1)
-    if ty == 'tick': s = sfx_tick(c.get('k', 0)); pan = .25 * (1 if c.get('k', 0) % 2 else -1)
-    elif ty == 'lock': s = sfx_lock(c.get('p', 0)); pan = 0
+    if ty not in GAIN:
+        continue                                            # 'shimmer' e afins: fora do som institucional
+    if t - last.get(ty, -9) < GAP.get(ty, 0):
+        continue
+    last[ty] = t
+    g = GAIN[ty] * c.get('g', 1); pan = 0.0
+    if ty in ('tick', 'blip'):
+        s = sfx_tick(); pan = .2 * np.sin(t * 7)
+    elif ty == 'lock':
+        s = sfx_settle()
     elif ty == 'rev':
-        if 'i' in c: i = c['i']
-        else:
-            i = rev_i + 1 if t - rev_last < 1.0 else 0
-        rev_i, rev_last = i, t
-        s = sfx_rev(i); pan = -.2 + .1 * (i % 5)
-    elif ty == 'pop': s = sfx_pop(c.get('p', 0)); pan = -.3 + .15 * (c.get('p', 0) % 5)
-    elif ty == 'blip': s = sfx_blip(c.get('i', 0)); pan = .5 * np.sin(c.get('i', 0) * 1.1)
-    elif ty == 'thud': s = sfx_thud(c.get('p', 0)); pan = -.4 + .4 * (c.get('p', 0) % 3)
-    elif ty == 'slide': s = sfx_slide(); pan = 0
-    elif ty == 'whip': s = sfx_whip(); pan = 0
-    elif ty == 'wipe': s = sfx_wipe(); pan = 0
-    elif ty == 'hit': s = sfx_hit(t, bool(c.get('big'))); g *= 1 if c.get('big') else .65; pan = 0
-    elif ty == 'draw': s = sfx_draw(c.get('d', 1), c.get('lo', 0)); pan = 0
-    elif ty == 'riser': s = sfx_riser(c.get('d', 1.5)); pan = 0
-    elif ty == 'shimmer': s = sfx_shimmer(); pan = 0
-    else: continue
+        s = swoosh(.3, 1100, 3400, 2200, body=0, peak=.4, p0=-.25, p1=.25)
+    elif ty == 'pop':
+        s = sfx_tap(); pan = -.2 + .1 * (c.get('p', 0) % 5)
+    elif ty == 'slide':
+        s = swoosh(.45, 300, 1700, 600, body=.5, p0=.4, p1=-.4)
+    elif ty == 'whip':
+        s = swoosh(.32, 600, 2800, 1200, body=.2, p0=-.5, p1=.5)
+    elif ty == 'wipe':
+        s = swoosh(.8, 250, 2100, 700, body=.6, p0=-.8, p1=.8)
+    elif ty == 'hit':
+        big = bool(c.get('big'))
+        s = sfx_impact(big); g *= 1 if big else .6
+        piano_chord(t, .95 if big else .7, low=True)       # o impacto ganha um acorde de piano
+    elif ty == 'thud':
+        s = sfx_thud(); pan = -.3 + .3 * (c.get('p', 0) % 3)
+    elif ty == 'draw':
+        s = sfx_swell(c.get('d', 1))
+    elif ty == 'riser':
+        s = sfx_swell(c.get('d', 1.5), tonal_at=t + c.get('d', 1.5) + .05)
     put('sfx', t, s, g, pan, SEND.get(ty, 0))
 
 # ---------------------------------------------------------------- mixagem
@@ -437,8 +407,7 @@ def active_rms(x):
 
 def db(x): return 10 ** (x / 20)
 
-# sidechain (a música "respira" com o bumbo)
-imp = np.zeros(N)
+imp = np.zeros(N)                                           # sidechain: a música respira com o bumbo
 for tk in kick_times:
     i = int(tk * SR)
     if i < N: imp[i] = 1
@@ -446,78 +415,65 @@ env = signal.lfilter([1], [1, -np.exp(-1 / (.13 * SR))], imp)
 env = lp(np.clip(env, 0, 1), 90)
 duck = lambda depth: 1 - depth * env
 
-B['pad'] = lp_sweep(B['pad'], auto([(0, 500), (4.5, 1100), (4.6, 1800), (DROP1 - .1, 4200), (DROP1, 4000), (BRK - .01, 4000),
-                                    (BRK, 1400), (DROP2 - 4, 1600), (DROP2 - .05, 5500), (DROP2, 4200), (FINAL, 4200), (END, 1800)]))
-B['pad'] *= auto([(0, 0), (1.2, .8), (4.6, .9), (DROP1, 1), (BRK, 1), (BRK + .01, 1.3), (DROP2, 1.3), (DROP2 + .01, 1),
-                  (FINAL, 1), (FINAL + .01, 1.3), (END, 1.3)])
-B['arp'] = lp_sweep(B['arp'], auto([(0, 1500), (4.6, 1500), (DROP1 - .1, 7000), (DROP1, 6500), (DROP2 - 4, 900),
-                                    (DROP2 - .05, 7000), (DROP2, 6500), (END, 6500)]))
-m = (B['arp'][0] + B['arp'][1]) / 2                          # delay ping-pong em colcheia pontuada
-d = int(.375 * SR); mf = lp(m, 3500)
-for k, gk in enumerate((.36, .22, .12), 1):
-    ch = k % 2
-    B['arp'][ch, k * d:] += gk * mf[:-k * d]
-B['send'] += B['arp'] * .15 + B['pad'] * .1
+B['strings'] = sweep(B['strings'], auto([(0, 900), (4.5, 1500), (4.6, 2400), (DROP1 - .1, 4200), (DROP1, 3200),
+                                         (BRK, 2600), (DROP2 - .05, 4500), (DROP2, 3400), (END, 3000)]), C=512)
+B['strings'] *= auto([(0, 0), (1.5, .7), (4.6, .85), (DROP1, 1), (BRK, 1), (BRK + .01, 1.25), (DROP2, 1.25),
+                      (DROP2 + .01, 1), (FINAL, 1), (FINAL + .01, 1.2), (END, 1.2)])
+B['piano'] = sweep(B['piano'], auto([(0, 3500), (4.6, 4500), (DROP1, 7000), (END, 7000)]), C=512)
+B['send'] += B['strings'] * .12 + B['piano'] * .05
 
-targets = {'bass': -19, 'pad': -24, 'arp': -26, 'keys': -23}
+targets = {'bass': -20, 'strings': -22, 'piano': -22}
 for k, v in targets.items():
     B[k] *= db(v) / active_rms(B[k])
-B['kick'] *= .8 / np.abs(B['kick']).max()
-B['perc'] *= .33 / np.abs(B['perc']).max()
-B['sfx'] *= .95 / np.abs(B['sfx']).max()
+B['kick'] *= .72 / np.abs(B['kick']).max()
+B['perc'] *= .3 / np.abs(B['perc']).max()
+B['sfx'] *= .9 / np.abs(B['sfx']).max()
 
-def reverb(x, dur=2.4, pre=.02):
+def reverb(x, dur=2.8, pre=.025):
     n = int(dur * SR); t = np.arange(n) / SR
     out = []
     for c in range(2):
-        ir = rng.standard_normal(n) * np.exp(-t * (6.9 / dur))
-        ir = lp_sweep(ir, 800 + 9000 * np.exp(-t * 1.2))
+        ir = noise(n) * np.exp(-t * (6.9 / dur))
+        ir = sweep(ir, 700 + 8000 * np.exp(-t * 1.4), C=512)
         ir[:int(pre * SR)] = 0
         ir /= np.sqrt(np.sum(ir ** 2))
         out.append(signal.fftconvolve(x[c], ir)[:x.shape[1]])
     return np.vstack(out)
 
 wet = reverb(B['send'])
-wet *= db(-27) / active_rms(wet)
+wet *= db(-25) / active_rms(wet)
 
-mix = (B['kick'] + B['perc'] + B['bass'] * duck(.75) + B['pad'] * duck(.5) + B['arp'] * duck(.35)
-       + B['keys'] + wet * duck(.3) + B['sfx'])
-mix = hp(mix, 28)
+music = B['kick'] + B['perc'] + B['bass'] * duck(.7) + B['strings'] * duck(.4) + B['piano'] * duck(.2)
+mix = hp(music + wet * duck(.25) + B['sfx'], 28)
 
 # compressão suave + limitador com lookahead
 e = np.sqrt(lp(np.mean(mix ** 2, axis=0), 8) + 1e-12)
 thr = db(-15)
-gr = np.where(e > thr, (e / thr) ** (1 / 2 - 1), 1.0)
-mix *= lp(gr, 20)
+mix *= lp(np.where(e > thr, (e / thr) ** -.5, 1.0), 20)
 target = db(-14.5) / active_rms(mix)
 mix *= target
 ceil = .93
 la = int(.003 * SR)
 pk = maximum_filter1d(np.max(np.abs(mix), axis=0), size=2 * la + 1)
-g = np.minimum(1.0, ceil / (pk + 1e-9))
-g = minimum_filter1d(g, size=2 * la + 1)
+g = minimum_filter1d(np.minimum(1.0, ceil / (pk + 1e-9)), size=2 * la + 1)
 g = signal.lfilter([1 - np.exp(-1 / (.06 * SR))], [1, -np.exp(-1 / (.06 * SR))], g - 1) + 1
-g = np.minimum(g, np.minimum(1.0, ceil / (pk + 1e-9)))
-mix *= g
+mix *= np.minimum(g, np.minimum(1.0, ceil / (pk + 1e-9)))
 mix = np.tanh(mix / ceil * 1.02) * ceil
 
 L = int(END * SR)
 mix = mix[:, :L]
-fade = np.ones(L); f = int(1.6 * SR); fade[-f:] = np.linspace(1, 0, f) ** 1.5
+fade = np.ones(L); f = int(1.8 * SR); fade[-f:] = np.linspace(1, 0, f) ** 1.5
 fade[:int(.05 * SR)] = np.linspace(0, 1, int(.05 * SR))
 mix *= fade
 
-import os
-if os.environ.get('STEMS'):
-    import wave as _w
-    for nm, x in (('sfx', B['sfx']), ('music', B['kick'] + B['perc'] + B['bass'] * duck(.75) + B['pad'] * duck(.5) + B['arp'] * duck(.35) + B['keys'])):
-        with _w.open(OUT.replace('.wav', f'_{nm}.wav'), 'wb') as w:
-            w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
-            w.writeframes((np.clip(x[:, :L].T * target, -1, 1) * 32767).astype('<i2').tobytes())
+def write(path, x):
+    with wave.open(path, 'wb') as w:
+        w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
+        w.writeframes((np.clip(x.T, -1, 1) * 32767).astype('<i2').tobytes())
 
-import wave
-with wave.open(OUT, 'wb') as w:
-    w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
-    w.writeframes((np.clip(mix.T, -1, 1) * 32767).astype('<i2').tobytes())
+write(OUT, mix)
+if os.environ.get('STEMS'):
+    write(OUT.replace('.wav', '_sfx.wav'), B['sfx'][:, :L] * target)
+    write(OUT.replace('.wav', '_music.wav'), music[:, :L] * target)
 rms = 20 * np.log10(active_rms(mix)); peak = 20 * np.log10(np.abs(mix).max())
 print(f'ok {OUT}: {END}s  rms {rms:.1f} dBFS  pico {peak:.1f} dBFS  deixas {len(CUES)}  bumbos {len(kick_times)}')
