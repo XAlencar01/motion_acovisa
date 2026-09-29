@@ -20,14 +20,15 @@ html,body{width:100%;height:100%;background:#05101f;overflow:hidden;font-family:
 .cond{font-family:'SFT Schrifted Sans Comp';font-weight:600;text-transform:uppercase;letter-spacing:.14em}
 .mask{display:block;overflow:hidden;padding:.16em 0 .16em;margin:-.14em 0}
 .mask>i{display:block;font-style:normal;will-change:transform}
-.chip{position:absolute;font-family:'SFT Schrifted Sans Comp';font-weight:600;font-size:30px;letter-spacing:.22em;text-transform:uppercase;padding:12px 26px 10px;border-left:6px solid var(--yellow);background:rgba(255,255,255,.08)}
+.chip{position:absolute;font-family:'SFT Schrifted Sans Comp';font-weight:600;font-size:30px;letter-spacing:.22em;text-transform:uppercase;padding:12px 28px 10px 54px;border-radius:999px;background:rgba(255,255,255,.08)}
+.chip::before{content:'';position:absolute;left:24px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:var(--yellow)}
 .body{font-family:'SFT Schrifted Sans';font-weight:500;font-size:34px;line-height:1.3}
 .y{color:var(--yellow)} .b{color:var(--blue)} .n{color:var(--navy)}
 .card{position:absolute;background:#fff;border-radius:28px;box-shadow:0 30px 80px rgba(0,30,70,.28)}
 .grain{position:absolute;inset:-50%;opacity:.07;pointer-events:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>")}
 #wipe{position:absolute;inset:0;pointer-events:none;z-index:50}
-#wipe div{position:absolute;top:-10%;left:0;width:150%;height:120%;}
-#prog{position:absolute;left:0;bottom:0;height:8px;width:100%;background:var(--yellow);transform-origin:left;transform:scaleX(0);z-index:60}
+#wipe div{position:absolute;top:-560px;left:0;width:3400px;height:2200px;border-radius:50%}
+#prog{position:absolute;left:0;bottom:0;height:8px;width:100%;border-radius:0 4px 4px 0;background:var(--yellow);transform-origin:left;transform:scaleX(0);z-index:60}
 #ui{position:fixed;left:0;right:0;bottom:0;display:flex;gap:14px;align-items:center;padding:12px 20px;background:linear-gradient(transparent,rgba(0,0,0,.7));color:#fff;font:600 14px 'SFT Schrifted Sans',sans-serif;z-index:99;transition:opacity .3s}
 #ui button{background:var(--yellow);border:0;border-radius:8px;padding:8px 16px;font:700 14px 'SFT Schrifted Sans';color:#1A2B4A;cursor:pointer}
 #ui input{flex:1;accent-color:#FFCD00}
@@ -40,29 +41,27 @@ svg{overflow:visible}
 <div id="viewport"><div id="stage">
 
 <!-- ============ S1 INTRO ============ -->
-<section class="scene" id="s1" style="background:radial-gradient(120% 120% at 20% 30%,#0a4a86 0%,#062a52 45%,#0B1A30 100%)">
-  <div class="abs" id="s1grid" style="inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:120px 120px"></div>
+<section class="scene" id="s1" style="background:radial-gradient(120% 110% at 50% 38%,#ffffff 0%,#F4F8FC 55%,#E2EBF4 100%);color:var(--navy)">
   <svg class="abs" style="left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080">
-    <path id="s1y" d="M-120 800 C 500 520, 1250 520, 2040 860" fill="none" stroke="#FFCD00" stroke-width="14" stroke-linecap="round" pathLength="1"/>
-    <path id="s1b" d="M-120 900 C 600 280, 1350 260, 2040 700" fill="none" stroke="#0071BB" stroke-width="10" stroke-linecap="round" pathLength="1"/>
+    <path id="s1y" d="M-100 1000 C 500 820, 1300 820, 2020 960" fill="none" stroke="#FFCD00" stroke-width="12" stroke-linecap="round" pathLength="1"/>
+    <path id="s1b" d="M-100 1060 C 600 760, 1400 780, 2020 900" fill="none" stroke="#0071BB" stroke-width="9" stroke-linecap="round" pathLength="1"/>
   </svg>
-  
-  <div class="abs" id="s1txt" style="left:150px;top:230px;font-size:225px">
-    <span class="mask disp"><i>O Aço</i></span>
-    <span class="mask disp y"><i>Certo</i></span>
-    <span class="mask disp"><i>É Açovisa</i></span>
+  <div class="abs" id="s1logo" style="left:0;top:0;width:1920px;height:1080px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px">
+    <div style="position:relative;overflow:hidden"><img id="s1logoimg" src="assets/image6.png" width="980" style="display:block"><div id="s1flare" style="position:absolute;top:0;left:0;width:220px;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);transform:translateX(-300px)"></div></div>
+    <div class="cond" id="s1sub" style="font-size:30px;color:#5B6B82;letter-spacing:.24em">Desde 1995 · Atuação em todo o Brasil</div>
   </div>
-  <div class="abs" id="s1logo" style="left:0;top:0;width:1920px;height:1080px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;visibility:hidden">
-    <div style="position:relative;overflow:hidden;"><img id="s1logoimg" src="assets/image3.png" width="1000"><div id="s1flare" style="position:absolute;top:0;left:0;width:200px;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);transform:translateX(-300px) skewX(-20deg)"></div></div>
-    <div class="cond" id="s1sub1" style="font-size:44px;color:var(--yellow)">Apresentação institucional</div>
-    <div class="cond" id="s1sub2" style="font-size:30px;color:#cfe0f2;letter-spacing:.2em">Desde 1995 · 17 unidades · Atuação em todo o Brasil</div>
+  <div class="abs" id="s1box" style="left:0;top:0;width:1920px;height:1080px;display:flex;align-items:center;justify-content:center;visibility:hidden">
+    <div id="s1boxin" style="display:flex;flex-direction:column;align-items:stretch">
+      <div class="disp n" id="s1l1" style="font-size:180px;line-height:.86"><span class="mask"><i>O Aço <span class="b">Certo</span></i></span></div>
+      <div class="disp n" id="s1l2" style="font-size:220px;line-height:.86;margin-top:.1em"><span class="mask"><i>É Açovisa</i></span></div>
+      <div id="s1rule" style="width:200px;height:12px;border-radius:6px;background:var(--yellow);margin:44px auto 0"></div>
+    </div>
   </div>
-  <div class="grain"></div>
 </section>
 
 <!-- ============ S2 30 ANOS ============ -->
 <section class="scene" id="s2" style="background:var(--ice);color:var(--ink)">
-  <div class="abs" id="s2bg" style="right:-200px;top:-100px;width:1050px;height:880px;background:var(--navy);transform:skewX(-14deg)"></div>
+  <div class="abs" id="s2bg" style="left:0;top:0;width:1920px;height:1080px"><svg width="1920" height="1080"><path d="M1180 0 C1010 240 1010 520 1150 680 C1280 820 1600 800 1920 720 L1920 0 Z" fill="#003A70"/></svg></div>
   <div class="chip" id="s2chip" style="left:140px;top:110px;color:var(--navy);background:rgba(0,58,112,.07)">Quem somos</div>
   <div class="disp n" id="s2year" style="left:120px;top:250px;font-size:400px;position:absolute;-webkit-text-stroke:0">1995</div>
   <div class="abs" id="s2tl" style="left:140px;top:840px;width:1640px;height:120px">
@@ -102,10 +101,10 @@ svg{overflow:visible}
 
 <!-- ============ S3C clientes ============ -->
 <section class="scene" id="s3c" style="background:var(--blue)">
-  <div class="abs" id="s3cL" style="left:0;top:0;width:960px;height:1080px;background:linear-gradient(160deg,#0071BB,#004f8a)"></div>
-  <div class="abs" id="s3cR" style="left:960px;top:0;width:960px;height:1080px;background:linear-gradient(160deg,#003A70,#0B1A30)"></div>
+  <div class="abs" id="s3cL" style="left:0;top:0;width:1500px;height:1080px;background:linear-gradient(160deg,#0071BB,#004f8a)"></div>
+  <div class="abs" id="s3cR" style="left:960px;top:0;width:960px;height:1080px;border-radius:480px 0 0 480px / 540px 0 0 540px;background:linear-gradient(160deg,#003A70,#0B1A30)"></div>
   <div id="s3cbarsL" class="abs" style="left:0;bottom:0;width:960px;height:1080px;display:flex;align-items:flex-end;gap:8px;padding:0 40px;opacity:.16"></div>
-  <div id="s3cbarsR" class="abs" style="left:960px;bottom:0;width:960px;height:1080px;display:flex;align-items:flex-end;gap:8px;padding:0 40px;opacity:.16"></div>
+  <div id="s3cbarsR" class="abs" style="left:960px;bottom:0;width:960px;height:1080px;border-radius:480px 0 0 480px / 540px 0 0 540px;overflow:hidden;display:flex;align-items:flex-end;gap:8px;padding:0 40px;opacity:.16"></div>
   <div class="chip" style="left:120px;top:100px">Clientes</div>
   <div class="abs" style="left:120px;top:250px;width:780px"><div class="disp" id="s3cn1" style="font-size:250px">0</div>
     <div class="disp y" style="font-size:66px;margin-top:20px"><span class="mask"><i id="s3cl1">Clientes atendidos<br>por mês</i></span></div></div>
@@ -124,14 +123,14 @@ svg{overflow:visible}
   </div>
   <div class="abs" id="s4tag" style="left:733px;top:728px;visibility:hidden">
     <svg class="abs" style="left:0;top:0" width="130" height="80"><path id="s4tagl" d="M14 10 L60 56 L118 56" fill="none" stroke="#FFCD00" stroke-width="4" pathLength="1"/></svg>
-    <div id="s4tagb" class="disp abs" style="left:118px;top:30px;font-size:34px;background:#FFCD00;color:#1A2B4A;padding:12px 18px 8px;border-radius:8px">Matriz · Guarulhos</div>
+    <div id="s4tagb" class="disp abs" style="left:118px;top:30px;font-size:34px;background:#FFCD00;color:#1A2B4A;padding:12px 24px 8px;border-radius:999px">Matriz · Guarulhos</div>
   </div>
   <div class="abs" id="s4right" style="inset:0">
   <div class="chip" style="left:1080px;top:100px">04 · Estrutura</div>
-  <div class="abs" style="left:1080px;top:190px">
-    <div class="disp" id="s4n" style="font-size:340px">0</div>
-    <div class="disp y" style="font-size:112px;margin-top:6px"><span class="mask"><i id="s4l">Unidades</i></span></div>
-    <div class="body" id="s4t" style="margin-top:28px;width:720px;color:#cfe0f2"><span class="mask"><i>Matriz em Guarulhos (SP) e 16 filiais — todas com o mesmo padrão de qualidade e atendimento.</i></span></div>
+  <div class="abs" style="left:1080px;top:230px;width:760px">
+    <div class="disp" id="s4w1"><span class="mask"><i id="s4n">Unidades</i></span></div>
+    <div class="disp y" id="s4w2" style="margin-top:.1em"><span class="mask"><i id="s4l">Estratégicas</i></span></div>
+    <div class="body" id="s4t" style="margin-top:44px;width:720px;color:#cfe0f2"><span class="mask"><i>Matriz em Guarulhos (SP) e unidades em diversas regiões, perto de onde você produz — todas com o mesmo padrão de qualidade e atendimento.</i></span></div>
   </div>
   <div class="abs" id="s4stats" style="left:1080px;top:850px;display:flex;gap:60px">
     <div><div class="disp" id="s4a" style="font-size:72px">0</div><div class="cond" style="font-size:24px;color:#9fb8d4">m² armazenagem</div></div>
@@ -149,10 +148,10 @@ svg{overflow:visible}
     </div>
     <div class="abs" style="inset:0;background:linear-gradient(90deg,rgba(0,24,52,.86) 0%,rgba(0,24,52,.55) 36%,rgba(0,24,52,0) 64%),linear-gradient(0deg,rgba(0,18,40,.8) 0%,rgba(0,18,40,0) 34%),linear-gradient(180deg,rgba(0,18,40,.72) 0%,rgba(0,18,40,0) 26%)"></div>
     <div class="abs" id="sDhud" style="inset:56px">
-      <i class="abs" style="left:0;top:0;width:90px;height:6px;background:#FFCD00;transform-origin:left"></i><i class="abs" style="left:0;top:0;width:6px;height:90px;background:#FFCD00;transform-origin:top"></i>
-      <i class="abs" style="right:0;top:0;width:90px;height:6px;background:#FFCD00;transform-origin:right"></i><i class="abs" style="right:0;top:0;width:6px;height:90px;background:#FFCD00;transform-origin:top"></i>
-      <i class="abs" style="left:0;bottom:0;width:90px;height:6px;background:#FFCD00;transform-origin:left"></i><i class="abs" style="left:0;bottom:0;width:6px;height:90px;background:#FFCD00;transform-origin:bottom"></i>
-      <i class="abs" style="right:0;bottom:0;width:90px;height:6px;background:#FFCD00;transform-origin:right"></i><i class="abs" style="right:0;bottom:0;width:6px;height:90px;background:#FFCD00;transform-origin:bottom"></i>
+      <i class="abs" style="left:0;top:0;width:100px;height:100px;border-top:6px solid #FFCD00;border-left:6px solid #FFCD00;border-top-left-radius:40px;transform-origin:left top"></i>
+      <i class="abs" style="right:0;top:0;width:100px;height:100px;border-top:6px solid #FFCD00;border-right:6px solid #FFCD00;border-top-right-radius:40px;transform-origin:right top"></i>
+      <i class="abs" style="left:0;bottom:0;width:100px;height:100px;border-bottom:6px solid #FFCD00;border-left:6px solid #FFCD00;border-bottom-left-radius:40px;transform-origin:left bottom"></i>
+      <i class="abs" style="right:0;bottom:0;width:100px;height:100px;border-bottom:6px solid #FFCD00;border-right:6px solid #FFCD00;border-bottom-right-radius:40px;transform-origin:right bottom"></i>
     </div>
     <div class="chip" id="sDchip" style="left:120px;top:110px;background:rgba(0,24,52,.55)">04 · Estrutura</div>
     <img class="abs" id="sDlogo" src="assets/image3.png" style="right:120px;top:100px;width:300px;filter:drop-shadow(0 3px 14px rgba(0,18,40,.85)) drop-shadow(0 0 2px rgba(0,18,40,.6))">
@@ -187,10 +186,10 @@ svg{overflow:visible}
 
 <!-- ============ S6 PARCERIA ============ -->
 <section class="scene" id="s6" style="background:var(--deep)">
-  <div class="abs" id="s6p1" style="left:0;top:0;width:480px;height:1080px;background:var(--navy)"></div>
-  <div class="abs" id="s6p2" style="left:480px;top:0;width:480px;height:1080px;background:var(--blue)"></div>
-  <div class="abs" id="s6p3" style="left:960px;top:0;width:480px;height:1080px;background:#12325f"></div>
-  <div class="abs" id="s6p4" style="left:1440px;top:0;width:480px;height:1080px;background:var(--yellow)"></div>
+  <div class="abs" id="s6p1" style="left:20px;top:20px;width:455px;height:1040px;border-radius:44px;background:var(--navy)"></div>
+  <div class="abs" id="s6p2" style="left:495px;top:20px;width:455px;height:1040px;border-radius:44px;background:var(--blue)"></div>
+  <div class="abs" id="s6p3" style="left:970px;top:20px;width:455px;height:1040px;border-radius:44px;background:#12325f"></div>
+  <div class="abs" id="s6p4" style="left:1445px;top:20px;width:455px;height:1040px;border-radius:44px;background:var(--yellow)"></div>
   <div class="chip" id="s6chip" style="left:60px;top:70px;font-size:26px">02 · Parceria</div>
   <div class="abs disp" id="s6h" style="left:60px;top:140px;font-size:72px"><span class="mask"><i>O que nossos clientes recebem</i></span></div>
   <div class="abs" id="s6c1" style="left:60px;top:430px;width:400px"><div class="disp" id="s6n1" style="font-size:250px">0</div><div class="disp y" style="font-size:40px">meses sem<br>nenhum atraso</div><div class="cond" style="font-size:26px;margin-top:20px;color:#cfe0f2">Segurança de abastecimento</div></div>
@@ -201,7 +200,7 @@ svg{overflow:visible}
 
 <!-- ============ S7 PORTFOLIO ============ -->
 <section class="scene" id="s7" style="background:var(--ice);color:var(--ink)">
-  <div class="abs" id="s7bg" style="right:0;top:0;width:1080px;height:1080px;background:var(--navy);clip-path:polygon(30% 0,100% 0,100% 100%,14% 100%)"></div>
+  <div class="abs" id="s7bg" style="right:0;top:0;width:1080px;height:1080px;background:var(--navy);clip-path:path('M330 0 C150 300 110 720 200 1080 L1080 1080 L1080 0 Z')"></div>
   <div class="chip" style="left:140px;top:90px;color:var(--navy);background:rgba(0,58,112,.07)">03 · Portfólio</div>
   <div class="abs disp n" style="left:140px;top:150px;font-size:100px"><span class="mask"><i id="s7h">Produtos<br>que movem<br>a indústria</i></span></div>
   <div class="abs" id="s7list" style="left:140px;top:590px;width:800px"></div>
@@ -216,7 +215,7 @@ svg{overflow:visible}
   <div class="chip" style="left:100px;top:80px;z-index:5">03 · Competências · Acabamento</div>
   <div class="abs" id="s8txt" style="left:100px;top:0;width:1500px;height:1080px;z-index:5"></div>
   <div class="abs disp y" id="s8cnt" style="right:100px;top:60px;width:400px;height:150px;font-size:150px;z-index:5;text-align:right"></div>
-  <div class="abs" id="s8bar" style="left:100px;bottom:90px;width:1720px;height:6px;background:rgba(255,255,255,.25);z-index:5"><div id="s8barf" style="height:100%;width:100%;background:var(--yellow);transform-origin:left;transform:scaleX(0)"></div></div>
+  <div class="abs" id="s8bar" style="left:100px;bottom:90px;width:1720px;height:6px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.25);z-index:5"><div id="s8barf" style="height:100%;width:100%;background:var(--yellow);transform-origin:left;transform:scaleX(0)"></div></div>
   <div class="abs" id="s8end" style="inset:0;background:var(--blue);z-index:8;visibility:hidden"></div>
   <div class="abs" id="s8endc" style="inset:0;z-index:9;visibility:hidden"></div>
 </section>
@@ -251,14 +250,14 @@ svg{overflow:visible}
 <!-- ============ S12 OUTRO ============ -->
 <section class="scene" id="s12" style="background:radial-gradient(120% 120% at 70% 40%,#0a4a86 0%,#062a52 45%,#0B1A30 100%)">
   <svg class="abs" style="left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080">
-    <path id="s12y" d="M-120 800 C 500 520, 1250 520, 2040 860" fill="none" stroke="#FFCD00" stroke-width="14" stroke-linecap="round" pathLength="1"/>
-    <path id="s12b" d="M-120 900 C 600 280, 1350 260, 2040 700" fill="none" stroke="#0071BB" stroke-width="10" stroke-linecap="round" pathLength="1"/>
+    <path id="s12y" d="M-100 1060 C 500 880, 1300 880, 2020 1000" fill="none" stroke="#FFCD00" stroke-width="14" stroke-linecap="round" pathLength="1"/>
+    <path id="s12b" d="M-100 1100 C 600 840, 1400 860, 2020 960" fill="none" stroke="#0071BB" stroke-width="10" stroke-linecap="round" pathLength="1"/>
   </svg>
   <div class="abs" style="inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;text-align:center">
     <img id="s12logo" src="assets/image3.png" width="760">
     <div class="disp" style="font-size:112px;margin-top:20px"><span class="mask"><i id="s12h1">Obrigado pela <span class="y">parceria!</span></i></span></div>
     <div class="body" style="font-size:46px;color:#cfe0f2"><span class="mask"><i id="s12h2">Vamos construir juntos o próximo capítulo.</i></span></div>
-    <div id="s12url" class="disp" style="font-size:52px;background:var(--yellow);color:var(--ink);padding:22px 50px 16px;margin-top:20px;letter-spacing:.04em;text-transform:none;border-radius:12px">www.acovisa.com.br</div>
+    <div id="s12url" class="disp" style="font-size:52px;background:var(--yellow);color:var(--ink);padding:22px 56px 16px;margin-top:20px;letter-spacing:.04em;text-transform:none;border-radius:999px">www.acovisa.com.br</div>
   </div>
   <div class="grain"></div>
 </section>
@@ -280,7 +279,7 @@ if(RENDER)document.body.classList.add('render');
 const $=s=>document.querySelector(s);
 const rnd=(function(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}})(7);
 const fmt=n=>Math.round(n).toLocaleString('pt-BR');
-gsap.set('#wipe div',{skewX:-14,xPercent:-120});
+gsap.set('#wipe div',{x:-3600});
 const master=gsap.timeline({paused:true,defaults:{ease:'power3.out'}});
 window.master=master;
 
@@ -297,7 +296,7 @@ const ids=SC.map(s=>s[0]),T=[],TS={};let acc=0;
 SC.forEach(([id,d])=>{T.push(acc);TS[id]=acc;acc+=d});
 const END=acc;window.DURATION=END;
 const VT0=TS.sD-.6; /* o vídeo da matriz começa aqui, abrindo em íris a partir do pin de Guarulhos */
-window.MARKS={TS,END,VT0};
+window.MARKS={TS,END,VT0,intro:{logo:.35,tag:3.7}};
 ids.forEach((id,i)=>{
   master.set('#'+id,{display:'block'},id=='sD'?VT0:T[i]);
   master.set('#'+id,{display:'none'},i<ids.length-1?T[i+1]:END);
@@ -305,7 +304,7 @@ ids.forEach((id,i)=>{
 /* wipes */
 function wipe(t){
   const p=[...document.querySelectorAll('#wipe div')];
-  p.forEach((d,i)=>master.fromTo(d,{xPercent:-120},{xPercent:120,duration:.9,ease:'power2.inOut',immediateRender:false},t-.61+i*.16));
+  p.forEach((d,i)=>master.fromTo(d,{x:-3600},{x:2120,duration:.9,ease:'power2.inOut',immediateRender:false},t-.61+i*.16));
   cue('wipe',t-.52);
 }
 for(let i=1;i<T.length;i++)if(ids[i]!='sD')wipe(T[i]-.16);
@@ -314,6 +313,17 @@ cue('hit',TS.s2,{big:1});cue('hit',TS.s5,{big:1});
 
 master.fromTo('#prog',{scaleX:0},{scaleX:1,duration:END,ease:'none'},0);
 
+/* caixa tipográfica: linhas com a mesma largura, cada uma com o seu corpo de fonte */
+function boxFit(sels,W){sels.forEach(sel=>{const el=$(sel),p=document.createElement('span');p.className=el.className;
+  p.style.cssText='position:absolute;left:-9999px;top:0;visibility:hidden;display:inline-block;font-size:200px';p.innerHTML=el.querySelector('i').innerHTML;
+  document.body.appendChild(p);const w=p.offsetWidth;p.remove();el.style.fontSize=(200*W/w)+'px'})}
+window.READY=document.fonts.load("800 200px 'SFT Schrifted Sans Comp'").then(()=>{boxFit(['#s1l1','#s1l2'],1180);boxFit(['#s4w1','#s4w2'],740)});
+/* arcos da marca em cantos livres (não cruzam textos) */
+function arcs(scene,t,dy,dx){const NS='http://www.w3.org/2000/svg',g=document.createElementNS(NS,'svg');g.setAttribute('class','abs');g.setAttribute('width','1920');g.setAttribute('height','1080');g.style.cssText='left:0;top:0;pointer-events:none';
+  [[`M${1300+dx} -10 C${1500+dx} ${110+dy} 1720 ${150+dy} 1960 ${120+dy}`,'#FFCD00',8],[`M${1200+dx} -20 C${1450+dx} ${150+dy} 1700 ${190+dy} 1960 ${170+dy}`,'#0071BB',6]].forEach(([d,c,w],i)=>{
+    const p=document.createElementNS(NS,'path');p.setAttribute('d',d);p.setAttribute('fill','none');p.setAttribute('stroke',c);p.setAttribute('stroke-width',w);p.setAttribute('stroke-linecap','round');p.setAttribute('pathLength','1');p.setAttribute('opacity','.55');g.appendChild(p);
+    master.fromTo(p,{strokeDasharray:'1 1',strokeDashoffset:1},{strokeDashoffset:0,duration:1.4,ease:'power2.inOut'},t+.2+i*.15)});
+  $(scene).insertBefore(g,$(scene).firstChild)}
 /* helpers */
 function count(sel,from,to,t,dur,f,ease,snd){const o={v:from},el=$(sel);f=f||fmt;ease=ease||'power3.out';el.textContent=f(from);
   master.to(o,{v:to,duration:dur,ease,onUpdate(){el.textContent=f(o.v)}},t);
@@ -324,22 +334,16 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
 /* ===================== S1 INTRO ===================== */
 (function(){
   const t=TS.s1;
-  master.fromTo('#s1grid',{opacity:0,scale:1.3},{opacity:1,scale:1,duration:2.2,ease:'power2.out'},t);
-  swoosh('#s1y','#s1b',t+.2);
-  const m=[...document.querySelectorAll('#s1txt i')];
-  m.forEach((e,i)=>{master.fromTo(e,{yPercent:118,rotation:4},{yPercent:0,rotation:0,duration:.9,ease:'expo.out'},t+.9+i*.28);cue('rev',t+.93+i*.28,{i})});
-  master.to('#s1txt',{scale:1.05,duration:3,ease:'none'},t+1.8);
-  cue('riser',t+3.2,{d:1.4});
-  m.forEach((e,i)=>master.to(e,{yPercent:-118,duration:.55,ease:'power3.in'},t+4.1+i*.08));
-  cue('whip',t+4.12);
-  master.set('#s1txt',{display:'none'},t+4.9);
-  master.set('#s1logo',{visibility:'visible'},t+4.6);
-  master.fromTo('#s1logoimg',{scale:.6,opacity:0,filter:'blur(24px)'},{scale:1,opacity:1,filter:'blur(0px)',duration:1.1,ease:'expo.out'},t+4.6);
-  cue('hit',t+4.6,{big:1});
-  master.fromTo('#s1flare',{x:-300},{x:1300,duration:1.1,ease:'power2.inOut'},t+5.2);
-  cue('shimmer',t+5.35);
-  master.fromTo('#s1sub1',{opacity:0,y:30,letterSpacing:'.6em'},{opacity:1,y:0,letterSpacing:'.14em',duration:1,},t+5.4);cue('rev',t+5.45,{i:3});
-  master.fromTo('#s1sub2',{opacity:0,y:30},{opacity:1,y:0,duration:.9},t+5.8);cue('rev',t+5.85,{i:4});
+  swoosh('#s1y','#s1b',t+.15);
+  master.fromTo('#s1logoimg',{scale:.88,opacity:0,filter:'blur(18px)'},{scale:1,opacity:1,filter:'blur(0px)',duration:1.2,ease:'expo.out'},t+.35);cue('hit',t+.35,{big:1});
+  master.fromTo('#s1sub',{opacity:0,y:24},{opacity:1,y:0,duration:.8},t+1.05);cue('rev',t+1.08,{i:1});
+  master.fromTo('#s1flare',{x:-300},{x:1300,duration:1.2,ease:'power2.inOut'},t+1.6);
+  master.fromTo('#s1logo',{scale:1},{scale:1.03,duration:1.9,ease:'none'},t+1.4);
+  master.to('#s1logo',{y:-50,opacity:0,duration:.55,ease:'power2.in'},t+3.25);cue('whip',t+3.3,{g:.7});
+  master.set('#s1box',{visibility:'visible'},t+3.6);
+  up('#s1l1 i',t+3.7,.9,null,{i:0});up('#s1l2 i',t+3.95,.9,null,{i:1});
+  master.fromTo('#s1rule',{scaleX:0},{scaleX:1,duration:.7,ease:'expo.out'},t+4.35);cue('hit',t+4.35);
+  master.fromTo('#s1boxin',{scale:1},{scale:1.035,duration:3.6,ease:'none'},t+4.2);
   cue('riser',t+6.25,{d:1.7});
 })();
 
@@ -367,8 +371,9 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
 /* ===================== S3A 50.000 ===================== */
 (function(){
   const t=TS.s3a;
+  arcs('#s3a',t,0,0);
   const bx=$('#s3abars');
-  for(let i=0;i<24;i++){const d=document.createElement('div');d.style.cssText=`position:absolute;left:${i*84}px;bottom:0;width:60px;height:${140+rnd()*420}px;background:linear-gradient(0deg,rgba(0,113,187,.35),rgba(0,113,187,0));`;bx.appendChild(d);master.fromTo(d,{scaleY:0,transformOrigin:'bottom'},{scaleY:1,duration:1.4,ease:'expo.out'},t+.1+i*.03)}
+  for(let i=0;i<24;i++){const d=document.createElement('div');d.style.cssText=`position:absolute;left:${i*84}px;bottom:0;width:60px;height:${140+rnd()*420}px;border-radius:30px 30px 0 0;background:linear-gradient(0deg,rgba(0,113,187,.35),rgba(0,113,187,0));`;bx.appendChild(d);master.fromTo(d,{scaleY:0,transformOrigin:'bottom'},{scaleY:1,duration:1.4,ease:'expo.out'},t+.1+i*.03)}
   cue('draw',t+.1,{d:.9,lo:1});
   const n=$('#s3an');const o={v:0};
   master.fromTo(n,{scale:.7,opacity:0},{scale:1,opacity:1,duration:.9,ease:'expo.out'},t+.2);
@@ -376,7 +381,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   ticks(t+.3,3.4,'power4.out',22);
   master.fromTo('#s3an',{y:0},{y:-12,duration:.15,yoyo:true,repeat:1},t+3.7);cue('hit',t+3.7);
   up('#s3al i',t+1,.8);
-  const mo=$('#s3amonths');for(let i=0;i<12;i++){const d=document.createElement('div');d.style.cssText='flex:1;background:var(--yellow);transform-origin:left';mo.appendChild(d);master.fromTo(d,{scaleY:.1,opacity:.25},{scaleY:1,opacity:1,duration:.3,ease:'back.out(2)'},t+1.8+i*.12);cue('blip',t+1.82+i*.12,{i})}
+  const mo=$('#s3amonths');for(let i=0;i<12;i++){const d=document.createElement('div');d.style.cssText='flex:1;background:var(--yellow);border-radius:20px;transform-origin:left';mo.appendChild(d);master.fromTo(d,{scaleY:.1,opacity:.25},{scaleY:1,opacity:1,duration:.3,ease:'back.out(2)'},t+1.8+i*.12);cue('blip',t+1.82+i*.12,{i})}
   master.fromTo('#s3atx',{opacity:0,y:20},{opacity:1,y:0,duration:.6},t+2);
   count('#s3a4',0,4200,t+1.9,1.6,null,null,false);
 })();
@@ -385,7 +390,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
 (function(){
   const t=TS.s3b;
   up('#s3bt i',t+.2,.9);
-  const data=[['image9.png',17,'Unidades no Brasil','Matriz + 16 filiais'],['image31.png',390,'Colaboradores','Equipes técnicas e comerciais'],['image8.png',260000,'m² de armazenagem','Todas as unidades']];
+  const data=[['image9.png',0,'Unidades estratégicas','Perto de onde você produz'],['image31.png',390,'Colaboradores','Equipes técnicas e comerciais'],['image8.png',260000,'m² de armazenagem','Todas as unidades']];
   const c=$('#s3btiles');
   data.forEach((d,i)=>{
     const x=140+i*590;
@@ -393,12 +398,14 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
     el.className='card';el.style.cssText=`left:${x}px;top:400px;width:540px;height:580px;overflow:hidden`;
     el.innerHTML=`<div style="position:absolute;left:0;top:0;width:100%;height:14px;background:${['#0071BB','#FFCD00','#003A70'][i]}"></div>
      <div style="position:absolute;left:44px;top:56px;width:120px;height:120px;border-radius:50%;background:#003A70;display:flex;align-items:center;justify-content:center"><img src="assets/${d[0]}" width="64"></div>
-     <div class="disp n" id="tn${i}" style="position:absolute;left:40px;top:200px;font-size:${i==2?128:168}px">0</div>
+     ${i==0?`<svg class="pins" style="position:absolute;left:30px;top:196px" width="480" height="210" viewBox="0 0 480 210"><path class="pl" d="M80 110 C150 30 190 50 250 90 S370 150 410 126" fill="none" stroke="#0071BB" stroke-width="5" stroke-linecap="round" pathLength="1" opacity=".6"/>${[[80,196,2.0,'#003A70'],[250,168,1.6,'#FFCD00'],[410,186,1.3,'#0071BB']].map(([x,y,k,c])=>`<g transform="translate(${x-17*k} ${y-46*k}) scale(${k})"><g class="pn"><path d="M17 0C7.6 0 0 7.6 0 17c0 12.7 17 29 17 29s17-16.3 17-29C34 7.6 26.4 0 17 0z" fill="${c}"/><circle cx="17" cy="17" r="7" fill="#fff"/></g></g>`).join('')}</svg>`:`<div class="disp n" id="tn${i}" style="position:absolute;left:40px;top:200px;font-size:${i==2?116:168}px">0</div>`}
      <div class="disp b" style="position:absolute;left:44px;top:420px;font-size:38px">${d[2]}</div>
      <div class="cond" style="position:absolute;left:44px;top:490px;font-size:24px;color:#64748B">${d[3]}</div>`;
     c.appendChild(el);
     master.fromTo(el,{y:700,rotation:6*(i-1),opacity:0},{y:0,rotation:0,opacity:1,duration:1,ease:'back.out(1.3)'},t+.5+i*.28);cue('slide',t+.62+i*.28);
-    count('#tn'+i,0,d[1],t+.9+i*.28,i==2?2.4:1.8,null,'power3.out',{g:.6,p:i,n:i==0?17:14});
+    if(i==0){const pl=el.querySelector('.pl');master.fromTo(pl,{strokeDasharray:'1 1',strokeDashoffset:1},{strokeDashoffset:0,duration:.9,ease:'power2.inOut'},t+1.1);
+      el.querySelectorAll('.pn').forEach((g,k)=>{master.fromTo(g,{y:-40,opacity:0},{y:0,opacity:1,duration:.7,ease:'bounce.out'},t+.9+k*.18);cue('thud',t+.9+k*.18+.7*.3636,{g:.45,p:k})})}
+    else count('#tn'+i,0,d[1],t+.9+i*.28,i==2?2.4:1.8,null,'power3.out',{g:.6,p:i,n:14});
     master.to(el,{y:-16,duration:2,ease:'sine.inOut',yoyo:true,repeat:1},t+2.4+i*.2);
   });
 })();
@@ -443,9 +450,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   const GX=X(O),GY=Y(O)-8;
   const g=document.createElementNS(NS,'circle');g.setAttribute('cx',GX);g.setAttribute('cy',GY);g.setAttribute('r',30);g.setAttribute('fill','rgba(255,205,0,.35)');svg.appendChild(g);
   master.fromTo(g,{scale:0,transformOrigin:'center'},{scale:1,duration:.8,ease:'back.out(3)'},t+1.4);cue('pop',t+1.42);
-  master.fromTo('#s4n',{y:120,opacity:0},{y:0,opacity:1,duration:.9,ease:'expo.out'},t+.6);
-  count('#s4n',0,17,t+.7,2,null,null,{p:1});
-  up('#s4l',t+1.2,.8);up('#s4t i',t+1.6,.9);
+  up('#s4n',t+.6,.9,null,{i:0});up('#s4l',t+.85,.9,null,{i:1});up('#s4t i',t+1.4,.9);
   master.fromTo('#s4stats',{opacity:0,y:40},{opacity:1,y:0,duration:.8},t+2.4);
   count('#s4a',0,260000,t+2.5,2.2,null,null,{n:12,g:.5,lg:.6,p:3});count('#s4b',0,50000,t+2.5,2.2,null,null,false);
   /* destaque da matriz + mergulho no pin de Guarulhos */
@@ -471,7 +476,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   cue('hit',t-.05,{big:1});
   master.fromTo('#sDmedia',{scale:1.14},{scale:1,duration:12.6,ease:'none'},VT0);
   const hud=[...document.querySelectorAll('#sDhud i')];
-  hud.forEach((h,i)=>master.fromTo(h,{scale:0},{scale:1,duration:.5,ease:'expo.out'},t+.4+(i>>1)*.06));
+  hud.forEach((h,i)=>master.fromTo(h,{scale:0},{scale:1,duration:.5,ease:'expo.out'},t+.4+i*.06));
   cue('draw',t+.4,{d:.5});
   master.fromTo('#sDchip',{x:-60,opacity:0},{x:0,opacity:1,duration:.6},t+.7);cue('pop',t+.72);
   master.fromTo('#sDlogo',{opacity:0,y:-20},{opacity:1,y:0,duration:.8},t+.9);
@@ -479,10 +484,10 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   up('#sDk',t+1.2,.8,null,{i:0});
   up('#sDg',t+1.45,1,null,{i:2});
   up('#sDs',t+1.9,.8,null,{i:4});
-  const F=['Matriz + 16 filiais','Selo Ambiental de Guarulhos desde 2008','Desde 1995'];
+  const F=['100% brasileira','Aços especiais desde 1995','Selo Ambiental de Guarulhos desde 2008'];
   const fx=$('#sDfacts');
   F.forEach((f,i)=>{const d=document.createElement('div');d.className='cond';
-    d.style.cssText='font-size:26px;color:#fff;padding:16px 24px 13px;background:rgba(0,24,52,.72);border-left:6px solid #FFCD00;backdrop-filter:blur(6px);white-space:nowrap';d.textContent=f;fx.appendChild(d);
+    d.style.cssText='font-size:26px;color:#fff;padding:16px 30px 13px 24px;background:rgba(0,24,52,.72);border-radius:999px;display:flex;align-items:center;backdrop-filter:blur(6px);white-space:nowrap';d.innerHTML=`<span style="width:14px;height:14px;border-radius:50%;background:#FFCD00;margin-right:14px;flex:none"></span>${f}`;fx.appendChild(d);
     master.fromTo(d,{y:40,opacity:0},{y:0,opacity:1,duration:.6},t+3.6+i*.3);cue('pop',t+3.62+i*.3,{p:i});
     master.to(d,{y:30,opacity:0,duration:.4,ease:'power2.in'},t+10.9+i*.06);});
   master.to(['#sDk','#sDg','#sDs'],{yPercent:-115,duration:.5,ease:'power3.in',stagger:.06},t+10.8);cue('whip',t+10.82);
@@ -507,7 +512,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   const svg=$('#s5svg'),NS='http://www.w3.org/2000/svg';
   const segs=['Usinagem de precisão','Equipamentos de mineração','Redutores e motores','Forjaria','Transmissão de energia','Peças agrícolas'];
   const sg=$('#s5seg');
-  segs.forEach((s,i)=>{const d=document.createElement('div');d.className='disp';d.style.cssText=`height:98px;margin-bottom:14px;display:flex;align-items:center;padding:0 18px;font-size:27px;background:${i%2?'#0071BB':'#003A70'};color:#fff;border-left:10px solid #FFCD00;transform-origin:left`;d.textContent=s;sg.appendChild(d);
+  segs.forEach((s,i)=>{const d=document.createElement('div');d.className='disp';d.style.cssText=`height:98px;margin-bottom:14px;display:flex;align-items:center;padding:0 22px 0 26px;font-size:25px;background:${i%2?'#0071BB':'#003A70'};color:#fff;border-radius:49px;transform-origin:left`;d.innerHTML=`<span style="width:14px;height:14px;border-radius:50%;background:#FFCD00;margin-right:16px;flex:none"></span>${s}`;sg.appendChild(d);
     master.fromTo(d,{scaleX:0,opacity:0},{scaleX:1,opacity:1,duration:.7,ease:'expo.out'},t+2.6+i*.14);cue('rev',t+2.62+i*.14,{i,g:.7});
     const y=330+i*112+49;
     const p=document.createElementNS(NS,'path');p.setAttribute('d',`M1250 630 C 1330 630, 1330 ${y}, 1410 ${y}`);p.setAttribute('fill','none');p.setAttribute('stroke','#0071BB');p.setAttribute('stroke-width','3');p.setAttribute('stroke-dasharray','12 12');svg.appendChild(p);
@@ -570,7 +575,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   P.forEach((p,i)=>{
     const t0=t+.2+i*step;
     const d=document.createElement('div');d.style.cssText=`position:absolute;inset:0;z-index:${i+1};overflow:hidden`;d.innerHTML=`<img src="assets/${p[0]}" style="position:absolute;left:0;top:-420px;width:1920px;height:1920px;object-fit:cover">`;ph.appendChild(d);
-    master.fromTo(d,{clipPath:'inset(100% 0 0 0)'},{clipPath:'inset(0% 0 0 0)',duration:.6,ease:'expo.inOut'},t0);cue('whip',t0+.08,{g:.8});
+    master.fromTo(d,{clipPath:'circle(0% at 8% 100%)'},{clipPath:'circle(150% at 8% 100%)',duration:.6,ease:'expo.inOut'},t0);cue('whip',t0+.08,{g:.8});
     master.fromTo(d.firstChild,{scale:1.35,y:60},{scale:1.02,y:-40,duration:step+.6,ease:'none'},t0);
     const w=document.createElement('div');w.style.cssText='position:absolute;left:0;top:420px;';w.innerHTML=`<div class="disp" style="font-size:200px;color:#fff;text-shadow:0 10px 60px rgba(0,0,0,.4)"><span class="mask"><i>${p[1]}</i></span></div>`;tx.appendChild(w);
     master.set(w,{visibility:'hidden'},0);
@@ -582,7 +587,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   const tEnd=t+.2+8*step+.1;
   master.fromTo('#s8barf',{scaleX:0},{scaleX:1,duration:8*step,ease:'none'},t+.2);
   master.set('#s8end',{visibility:'visible'},tEnd);
-  master.fromTo('#s8end',{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0% 0 0)',duration:.6,ease:'expo.inOut'},tEnd);cue('slide',tEnd+.15);
+  master.fromTo('#s8end',{clipPath:'circle(0% at 100% 50%)'},{clipPath:'circle(150% at 100% 50%)',duration:.6,ease:'expo.inOut'},tEnd);cue('slide',tEnd+.15);
   const ec=$('#s8endc');
   master.set(ec,{visibility:'visible'},tEnd+.35);
   ec.innerHTML=`<div class="abs disp" style="left:100px;top:180px;font-size:88px;color:#fff"><span class="mask"><i id="s8e0">Da barra bruta à pronta para usinar</i></span></div>
@@ -595,6 +600,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
 /* ===================== S9 QUALIDADE ===================== */
 (function(){
   const t=TS.s9;
+  arcs('#s9',t,90,120);
   up('#s9h',t+.2,1);
   const S=[['image53.png','ISO 9001:2015','Gestão da qualidade'],['image54.png','CRC Petrobras','Qualificada em óleo e gás'],['image55.png','Selo Ambiental','Concedido desde 2008']];
   const c=$('#s9st');
@@ -629,6 +635,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
 /* ===================== S11 ESG ===================== */
 (function(){
   const t=TS.s11;
+  arcs('#s11',t,90,180);
   up('#s11h',t+.2,1);
   const A=[['image70.png','Energia renovável','Mercado Livre de Energia'],['image69.png','Reciclagem','Coleta seletiva de resíduos'],['image33.png','Selo Ambiental','Desde 2008'],['image68.png','Eficiência','Iluminação natural e sistemas otimizados']];
   const amb=$('#s11amb');
@@ -666,7 +673,7 @@ fit();addEventListener('resize',fit);
 master.seek(0);
 if(FR){dv.style.display='none';dvimg.style.display='block';}
 const raf2=()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-window.seek=async t=>{master.pause();master.seek(Math.min(t,END-.001),false);
+window.seek=async t=>{await window.READY;master.pause();master.seek(Math.min(t,END-.001),false);
   const vt=t-VT0;
   if(vt>=0&&vt<13.1){
     if(FR){const idx=Math.min(FRN,Math.max(1,Math.round(vt*30)+1));const src=FR+String(idx).padStart(4,'0')+'.jpg';

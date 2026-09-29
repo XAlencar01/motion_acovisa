@@ -30,6 +30,7 @@ BEAT, BAR = 0.5, 2.0
 DROP1, BRK, DROP2, OUTRO = TS['s2'], TS['sD'], TS['s5'], TS['s12']
 LIFT = TS['s8']                              # a partir daqui as cordas ganham a oitava de cima
 FINAL = 2 * round((OUTRO + 5) / 2)          # acorde final, no início de um compasso
+INTRO = cfg['marks'].get('intro', {'logo': .35, 'tag': 3.7})
 
 # ---------------------------------------------------------------- harmonia
 def mtof(m):
@@ -415,11 +416,11 @@ env = signal.lfilter([1], [1, -np.exp(-1 / (.13 * SR))], imp)
 env = lp(np.clip(env, 0, 1), 90)
 duck = lambda depth: 1 - depth * env
 
-B['strings'] = sweep(B['strings'], auto([(0, 900), (4.5, 1500), (4.6, 2400), (DROP1 - .1, 4200), (DROP1, 3200),
+B['strings'] = sweep(B['strings'], auto([(0, 700), (INTRO['logo'], 1200), (INTRO['tag'] - .1, 1800), (INTRO['tag'], 2600), (DROP1 - .1, 4200), (DROP1, 3200),
                                          (BRK, 2600), (DROP2 - .05, 4500), (DROP2, 3400), (END, 3000)]), C=512)
-B['strings'] *= auto([(0, 0), (1.5, .7), (4.6, .85), (DROP1, 1), (BRK, 1), (BRK + .01, 1.25), (DROP2, 1.25),
+B['strings'] *= auto([(0, 0), (1.2, .7), (INTRO['tag'], .85), (DROP1, 1), (BRK, 1), (BRK + .01, 1.25), (DROP2, 1.25),
                       (DROP2 + .01, 1), (FINAL, 1), (FINAL + .01, 1.2), (END, 1.2)])
-B['piano'] = sweep(B['piano'], auto([(0, 3500), (4.6, 4500), (DROP1, 7000), (END, 7000)]), C=512)
+B['piano'] = sweep(B['piano'], auto([(0, 3500), (INTRO['tag'], 4500), (DROP1, 7000), (END, 7000)]), C=512)
 B['send'] += B['strings'] * .12 + B['piano'] * .05
 
 targets = {'bass': -20, 'strings': -22, 'piano': -22}
