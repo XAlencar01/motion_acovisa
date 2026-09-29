@@ -55,4 +55,6 @@ subprocess.run([FF, '-loglevel', 'error', '-y', '-framerate', str(FPS), '-i', st
                 '-shortest', '-movflags', '+faststart', A.out], check=True)
 subprocess.run([FF, '-loglevel', 'error', '-y', '-i', str(work / 'trilha.wav'), '-c:a', 'aac', '-b:a', '160k',
                 str(ROOT / 'assets' / 'soundtrack.m4a')], check=True)
+subprocess.run([FF, '-loglevel', 'error', '-y', '-i', str(work / 'trilha.wav'), '-c:a', 'libopus', '-b:a', '128k',
+                str(ROOT / 'assets' / 'soundtrack.ogg')], check=True)
 print('ok', A.out, total, 'quadros')
