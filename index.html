@@ -292,7 +292,7 @@ function easeInv(ease){const e=gsap.parseEase(ease);return y=>{for(let i=1;i<=60
 function ticks(t,dur,ease,n,g){const inv=easeInv(ease);let last=-1;for(let k=1;k<n;k++){const tt=t+inv(k/n)*dur;if(tt-last>.03){cue('tick',tt,{g:g||1,k});last=tt}}return t+inv(.995)*dur}
 
 /* ---------- cenas ---------- */
-const SC=[['s1',8],['s2',7],['s3a',8],['s3b',6],['s3c',6],['s4',11],['sD',12],['s5',11],['s6',9],['s7',10],['s8',13],['s9',6],['s10',7],['s11',9],['s12',8]];
+const SC=[['s1',8],['s2',7],['s3a',8],['s3b',6],['s3c',6],['s4',11],['sD',12],['s5',11],['s7',10],['s8',13],['s9',6],['s10',7],['s11',9],['s12',8]];
 const ids=SC.map(s=>s[0]),T=[],TS={};let acc=0;
 SC.forEach(([id,d])=>{T.push(acc);TS[id]=acc;acc+=d});
 const END=acc;window.DURATION=END;
@@ -536,6 +536,7 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
 
 /* ===================== S6 PARCERIA ===================== */
 (function(){
+  if(TS.s6===undefined)return; /* cena 'O que nossos clientes recebem' removida */
   const t=TS.s6;
   ['#s6p1','#s6p2','#s6p3','#s6p4'].forEach((s,i)=>master.fromTo(s,{yPercent:i%2?100:-100},{yPercent:0,duration:.9,ease:'expo.out'},t+.05+i*.1));cue('slide',t+.1);
   master.fromTo('#s6chip',{opacity:0,x:-40},{opacity:1,x:0,duration:.6},t+.6);
