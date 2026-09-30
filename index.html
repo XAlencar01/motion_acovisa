@@ -43,8 +43,9 @@ svg{overflow:visible}
 <!-- ============ S1 INTRO ============ -->
 <section class="scene" id="s1" style="background:radial-gradient(120% 110% at 50% 38%,#ffffff 0%,#F4F8FC 55%,#E2EBF4 100%);color:var(--navy)">
   <svg class="abs" style="left:0;top:0" width="1920" height="1080" viewBox="0 0 1920 1080">
-    <path id="s1y" d="M-100 1000 C 500 820, 1300 820, 2020 960" fill="none" stroke="#FFCD00" stroke-width="12" stroke-linecap="round" pathLength="1"/>
-    <path id="s1b" d="M-100 1060 C 600 760, 1400 780, 2020 900" fill="none" stroke="#0071BB" stroke-width="9" stroke-linecap="round" pathLength="1"/>
+    <path id="s1w0" fill="none" stroke="#FFCD00" stroke-width="11" stroke-linecap="round" pathLength="1"/>
+    <path id="s1w1" fill="none" stroke="#0071BB" stroke-width="8" stroke-linecap="round" pathLength="1"/>
+    <path id="s1w2" fill="none" stroke="#003A70" stroke-width="5" stroke-linecap="round" pathLength="1" opacity=".55"/>
   </svg>
   <div class="abs" id="s1logo" style="left:0;top:0;width:1920px;height:1080px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px">
     <div style="position:relative;overflow:hidden"><img id="s1logoimg" src="assets/image6.png" width="980" style="display:block"><div id="s1flare" style="position:absolute;top:0;left:0;width:220px;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);transform:translateX(-300px)"></div></div>
@@ -210,9 +211,9 @@ svg{overflow:visible}
 
 <!-- ============ S8 PROCESSOS ============ -->
 <section class="scene" id="s8" style="background:#000">
-  <div id="s8ph"></div>
+  <div id="s8ph" style="position:absolute;inset:0;z-index:1"></div>
   <div class="abs" style="left:0;top:0;width:1920px;height:1080px;background:linear-gradient(90deg,rgba(6,20,40,.85),rgba(6,20,40,.1) 70%);z-index:3"></div>
-  <div class="chip" style="left:100px;top:80px;z-index:5">03 · Competências · Acabamento</div>
+  <div class="chip" style="left:100px;top:80px;z-index:5">03 · Serviços</div>
   <div class="abs" id="s8txt" style="left:100px;top:0;width:1500px;height:1080px;z-index:5"></div>
   <div class="abs disp y" id="s8cnt" style="right:100px;top:60px;width:400px;height:150px;font-size:150px;z-index:5;text-align:right"></div>
   <div class="abs" id="s8bar" style="left:100px;bottom:90px;width:1720px;height:6px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.25);z-index:5"><div id="s8barf" style="height:100%;width:100%;background:var(--yellow);transform-origin:left;transform:scaleX(0)"></div></div>
@@ -291,7 +292,7 @@ function easeInv(ease){const e=gsap.parseEase(ease);return y=>{for(let i=1;i<=60
 function ticks(t,dur,ease,n,g){const inv=easeInv(ease);let last=-1;for(let k=1;k<n;k++){const tt=t+inv(k/n)*dur;if(tt-last>.03){cue('tick',tt,{g:g||1,k});last=tt}}return t+inv(.995)*dur}
 
 /* ---------- cenas ---------- */
-const SC=[['s1',8],['s2',7],['s3a',8],['s3b',6],['s3c',6],['s4',11],['sD',12],['s5',11],['s6',9],['s7',10],['s8',11],['s9',6],['s10',7],['s11',9],['s12',8]];
+const SC=[['s1',8],['s2',7],['s3a',8],['s3b',6],['s3c',6],['s4',11],['sD',12],['s5',11],['s6',9],['s7',10],['s8',13],['s9',6],['s10',7],['s11',9],['s12',8]];
 const ids=SC.map(s=>s[0]),T=[],TS={};let acc=0;
 SC.forEach(([id,d])=>{T.push(acc);TS[id]=acc;acc+=d});
 const END=acc;window.DURATION=END;
@@ -334,7 +335,14 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
 /* ===================== S1 INTRO ===================== */
 (function(){
   const t=TS.s1;
-  swoosh('#s1y','#s1b',t+.15);
+  /* 3 linhas da marca: entram da esquerda para a direita e seguem ondulando (sempre abaixo dos textos) */
+  const W=[{b:955,a:16,l:1500,v:1.0,arc:125},{b:992,a:22,l:1150,v:1.35,arc:120},{b:1030,a:12,l:1800,v:.8,arc:110}];
+  const wav={ph:0},wp=W.map((w,i)=>$('#s1w'+i));
+  const drawW=()=>W.forEach((w,i)=>{let d='';for(let x=-120;x<=2040;x+=30){const y=w.b-w.arc*Math.sin(Math.PI*(x+120)/2160)+w.a*Math.sin(2*Math.PI*x/w.l-wav.ph*w.v+i);d+=(x<-100?'M':'L')+x+' '+y.toFixed(1)}wp[i].setAttribute('d',d)});
+  drawW();
+  master.fromTo(wav,{ph:0},{ph:Math.PI*4,duration:8,ease:'none',onUpdate:drawW},t);
+  wp.forEach((p,i)=>master.fromTo(p,{strokeDasharray:'1 1',strokeDashoffset:1},{strokeDashoffset:0,duration:1.8,ease:'power2.inOut'},t+.1+i*.22));
+  cue('draw',t+.1,{d:1.9});
   master.fromTo('#s1logoimg',{scale:.88,opacity:0,filter:'blur(18px)'},{scale:1,opacity:1,filter:'blur(0px)',duration:1.2,ease:'expo.out'},t+.35);cue('hit',t+.35,{big:1});
   master.fromTo('#s1sub',{opacity:0,y:24},{opacity:1,y:0,duration:.8},t+1.05);cue('rev',t+1.08,{i:1});
   master.fromTo('#s1flare',{x:-300},{x:1300,duration:1.2,ease:'power2.inOut'},t+1.6);
@@ -566,35 +574,43 @@ const swoosh=(y,b,t)=>{master.fromTo(y,{strokeDasharray:'1 1',strokeDashoffset:1
   });
 })();
 
-/* ===================== S8 PROCESSOS ===================== */
+/* ===================== S8 SERVIÇOS ===================== */
 (function(){
   const t=TS.s8;
-  const P=[['image46.jpg','Descascamento'],['image47.jpg','Desempeno'],['image48.jpg','Retífica'],['image42.jpg','Corte e faceamento'],['image49.jpg','Jateamento'],['image50.jpg','Chanfros'],['image51.jpg','Pintura e ID'],['image52.jpg','Pré-usinagem']];
-  const ph=$('#s8ph'),tx=$('#s8txt'),cnt=$('#s8cnt');
-  const step=1; /* um corte a cada 2 tempos da música */
+  const P=[[['sv_corte.jpg'],'Corte de barra'],[['sv_trefilacao.jpg'],'Trefilação'],[['sv_descascamento.jpg'],'Descascamento'],[['sv_chanfros.jpg'],'Endireitamento e chanfros'],
+           [['sv_jateamento.jpg','sv_pintura.jpg'],'Jateamento e pintura'],[['sv_ensaio.jpg'],'Ensaio e controle de qualidade'],[['sv_logistica.jpg'],'Logística própria']];
+  const ph=$('#s8ph'),tx=$('#s8txt'),cnt=$('#s8cnt'),NP=P.length;
+  const step=1.5; /* um serviço a cada 3 tempos da música */
+  let z=1;
   P.forEach((p,i)=>{
     const t0=t+.2+i*step;
-    const d=document.createElement('div');d.style.cssText=`position:absolute;inset:0;z-index:${i+1};overflow:hidden`;d.innerHTML=`<img src="assets/${p[0]}" style="position:absolute;left:0;top:-420px;width:1920px;height:1920px;object-fit:cover">`;ph.appendChild(d);
-    master.fromTo(d,{clipPath:'circle(0% at 8% 100%)'},{clipPath:'circle(150% at 8% 100%)',duration:.6,ease:'expo.inOut'},t0);cue('whip',t0+.08,{g:.8});
-    master.fromTo(d.firstChild,{scale:1.35,y:60},{scale:1.02,y:-40,duration:step+.6,ease:'none'},t0);
-    const w=document.createElement('div');w.style.cssText='position:absolute;left:0;top:420px;';w.innerHTML=`<div class="disp" style="font-size:200px;color:#fff;text-shadow:0 10px 60px rgba(0,0,0,.4)"><span class="mask"><i>${p[1]}</i></span></div>`;tx.appendChild(w);
+    p[0].forEach((img,k)=>{
+      const tk=t0+k*step/2;
+      const d=document.createElement('div');d.style.cssText=`position:absolute;inset:0;z-index:${z++};overflow:hidden`;d.innerHTML=`<img src="assets/${img}" style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover">`;ph.appendChild(d);
+      master.fromTo(d,{clipPath:'circle(0% at 8% 100%)'},{clipPath:'circle(150% at 8% 100%)',duration:.6,ease:'expo.inOut'},tk);cue('whip',tk+.08,{g:.8});
+      master.fromTo(d.firstChild,{scale:1.18,x:-30},{scale:1.02,x:20,duration:step+.6,ease:'none'},tk);
+    });
+    const w=document.createElement('div');w.style.cssText='position:absolute;left:0;top:0;height:1080px;width:1400px;display:flex;align-items:center';
+    w.innerHTML=`<div class="disp" style="font-size:150px;color:#fff;white-space:normal;line-height:.9;text-shadow:0 10px 60px rgba(0,0,0,.45)"><span class="mask"><i>${p[1]}</i></span></div>`;tx.appendChild(w);
     master.set(w,{visibility:'hidden'},0);
     master.set(w,{visibility:'visible'},t0+.2);master.set(w,{visibility:'hidden'},t0+step+.2);
-    master.fromTo(w.querySelector('i'),{yPercent:120},{yPercent:0,duration:.6,ease:'expo.out'},t0+.25);cue('rev',t0+.28,{i});
-    if(i<P.length-1)master.to(w.querySelector('i'),{yPercent:-120,duration:.3,ease:'power3.in'},t0+step-.05);
-    const cb=document.createElement('span');cb.innerHTML='0'+(i+1)+'<span style="font-size:60px;color:#fff">/08</span>';cb.style.cssText='position:absolute;right:0;top:0;visibility:hidden;white-space:nowrap';cnt.appendChild(cb);master.set(cb,{visibility:'visible'},t0+.3);master.set(cb,{visibility:'hidden'},t0+step+.3);
+    master.fromTo(w.querySelector('i'),{yPercent:115},{yPercent:0,duration:.7,ease:'expo.out'},t0+.25);cue('rev',t0+.28,{i});
+    if(i<NP-1)master.to(w.querySelector('i'),{yPercent:-115,duration:.3,ease:'power3.in'},t0+step-.05);
+    const cb=document.createElement('span');cb.innerHTML='0'+(i+1)+'<span style="font-size:60px;color:#fff">/0'+NP+'</span>';cb.style.cssText='position:absolute;right:0;top:0;visibility:hidden;white-space:nowrap';cnt.appendChild(cb);master.set(cb,{visibility:'visible'},t0+.3);master.set(cb,{visibility:'hidden'},t0+step+.3);
   });
-  const tEnd=t+.2+8*step+.1;
-  master.fromTo('#s8barf',{scaleX:0},{scaleX:1,duration:8*step,ease:'none'},t+.2);
+  const tEnd=t+.2+NP*step+.1;
+  master.fromTo('#s8barf',{scaleX:0},{scaleX:1,duration:NP*step,ease:'none'},t+.2);
   master.set('#s8end',{visibility:'visible'},tEnd);
   master.fromTo('#s8end',{clipPath:'circle(0% at 100% 50%)'},{clipPath:'circle(150% at 100% 50%)',duration:.6,ease:'expo.inOut'},tEnd);cue('slide',tEnd+.15);
   const ec=$('#s8endc');
   master.set(ec,{visibility:'visible'},tEnd+.35);
-  ec.innerHTML=`<div class="abs disp" style="left:100px;top:180px;font-size:88px;color:#fff"><span class="mask"><i id="s8e0">Da barra bruta à pronta para usinar</i></span></div>
-   <div class="abs" style="left:100px;top:480px;display:flex;gap:40px">
-   ${[['8','Processos de acabamento'],['3','Térmico e superfície'],['4','Métodos de ensaio']].map((s,i)=>`<div id="s8k${i}"><div class="disp y" id="s8kn${i}" style="font-size:250px">0</div><div class="disp" style="font-size:38px;width:470px;white-space:normal;line-height:.95;margin-top:10px">${s[1]}</div></div>`).join('')}</div>`;
-  up('#s8e0',t+0+(tEnd-t)+.4,.8);
-  [8,3,4].forEach((v,i)=>{master.fromTo('#s8k'+i,{y:100,opacity:0},{y:0,opacity:1,duration:.7},tEnd+.6+i*.2);count('#s8kn'+i,0,v,tEnd+.7+i*.2,.9,null,'power2.out',{p:i})});
+  ec.innerHTML=`<div class="abs" style="left:0;top:0;width:1920px;height:1080px;display:flex;align-items:center;justify-content:center;gap:60px">
+     <div class="disp y" id="s8kn0" style="font-size:420px">0</div>
+     <div><div class="disp" style="font-size:110px;line-height:.9"><span class="mask"><i id="s8e0">Serviços<br>integrados</i></span></div>
+     <div class="cond" style="font-size:34px;margin-top:26px;color:#e6eef8;letter-spacing:.2em"><span class="mask"><i id="s8e1">Do corte de barra à logística própria</i></span></div></div></div>`;
+  master.fromTo('#s8kn0',{scale:.6,opacity:0},{scale:1,opacity:1,duration:.7,ease:'back.out(1.6)'},tEnd+.4);
+  count('#s8kn0',0,NP,tEnd+.45,.9,null,'power2.out',{p:2});
+  up('#s8e0',tEnd+.55,.8);up('#s8e1',tEnd+.8,.8,null,{i:3});
 })();
 
 /* ===================== S9 QUALIDADE ===================== */
